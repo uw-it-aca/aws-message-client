@@ -25,8 +25,8 @@ class Gather(object):
         self._topicArn = self._settings.get('TOPIC_ARN')
 
         connection_kwargs = {
-            aws_access_key_id: self._settings.get('KEY_ID'),
-            aws_secret_access_key: self._settings.get('KEY')
+            'aws_access_key_id': self._settings.get('KEY_ID'),
+            'aws_secret_access_key': self._settings.get('KEY')
         }
 
         if (hasattr(self._settings, 'LOCAL_CLIENT_VALIDATION')
@@ -34,7 +34,7 @@ class Gather(object):
             connection_kwargs['https_connection_factory'] = (https_connection_factory, ())
 
         connection = SQSConnection(**connection_kwargs)
- 
+
         if connection == None:
             raise GatherException('no connection')
 

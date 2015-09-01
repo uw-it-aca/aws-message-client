@@ -45,9 +45,9 @@ class SNS(object):
         try:
             Signature(sig_conf).validate(self._signText(), b64decode(self._message['Signature']))
         except CryptoException, err:
-            raise SNSException(self._message['Type'] + ' validation fail: ' + str(err))
+            raise SNSException('%s validation fail: %s' % (self._message['Type'], err))
         except Exception, err:
-            raise SNSException('Invalid SNS ' + self._message['Type'] + ': ' + str(err))
+            raise SNSException('Invalid SNS %s: %s' % (self._message['Type'], err))
 
     def _signText(self):
         to_sign = ''
@@ -70,7 +70,7 @@ class SNS(object):
         return to_sign.encode('utf-8')
 
     def _sigElement(self, el):
-        return el + '\n' + str(self._message[el]) + '\n';
+        return '%s\n%s\n' % (el, self._message[el])
 
     def extract(self):
         message = self._message['Message']
@@ -88,6 +88,6 @@ class SNS(object):
             )
             r = http.request('GET', self._message['SubscribeURL'])
             if r.status != 200:
-                raise SNSException('Subscribe to ' + self._message['TopicArn'] + ' failure: status: ' + r.status)
+                raise SNSException('Subscribe to %s failure: status: %s' % (self._message['TopicArn'], r.status))
         except urllib3.exceptions.HTTPError, err:
-            raise SNSException('Subscribe to ' + self._message['TopicArn'] + ' failure: ' + str(err))
+            raise SNSException('Subscribe to %s failure: %s' % (self._message['TopicArn'], err))

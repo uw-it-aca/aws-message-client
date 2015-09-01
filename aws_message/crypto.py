@@ -55,9 +55,9 @@ class Signature(object):
                         self._cert = r.data
                         cache.set(key, self._cert)
                     else:
-                        raise CryptoException('Cannot get certificate: status ' + r.status)
+                        raise CryptoException('Cannot get certificate %s: status %s' % (cert_ref, r.status))
                 except urllib3.exceptions.HTTPError, err:
-                    raise CryptoException('Cannot get certificate: ' + str(err))
+                    raise CryptoException('Cannot get certificate %s: %s' % (cert_ref, err))
         else:
             raise CryptoException('Unrecognized certificate reference type')
 
@@ -69,7 +69,7 @@ class Signature(object):
             cert = crypto.load_certificate(crypto.FILETYPE_PEM, self._cert)
             crypto.verify(cert, sig, msg, 'sha1')
         except Exception, err:
-            raise CryptoException('Cannot validate: ' + str(err))
+            raise CryptoException('Cannot validate: %s' % (err))
 
 
 class aes128cbc(object):
@@ -100,14 +100,14 @@ class aes128cbc(object):
             crypt = AES.new(self._key, AES.MODE_CBC, self._iv)
             return crypt.encrypt(msg)
         except Exception, err:
-            raise CryptoException('Cannot decrypt message: ' + str(err))
+            raise CryptoException('Cannot decrypt message: %s' % (err))
 
     def decrypt(self, msg):
         try:
             crypt = AES.new(self._key, AES.MODE_CBC, self._iv)
             return crypt.decrypt(msg)
         except Exception, err:
-            raise CryptoException('Cannot decrypt message: ' + str(err))
+            raise CryptoException('Cannot decrypt message: %s' % (err))
 
     def pad(self, s):
         return s + (self._block_size - len(s) % self._block_size) * chr(self._block_size - len(s) % self._block_size)

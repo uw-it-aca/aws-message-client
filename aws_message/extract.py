@@ -28,7 +28,7 @@ class Extract(object):
         if content_type == 'json':
             return json.loads(body)
 
-        raise ExtractException('Unknown content-type: %s' % content_type)
+        raise ExtractException('Unknown content-type: %s' % (content_type))
 
     def _raw_message(self):
         if self._settings.get('VALIDATE_MSG_SIGNATURE', True):
@@ -41,7 +41,7 @@ class Extract(object):
                 key = self._header['keyId']
                 keys = self._settings.get('KEYS', {})
                 if key not in keys:
-                    raise ExtractException('Invalid keyId : %s' key)
+                    raise ExtractException('Invalid keyId : %s' (key))
 
                 cipher = aes128cbc(b64decode(keys[key]),
                                    b64decode(self._header['iv']))
@@ -76,5 +76,5 @@ class Extract(object):
         except CryptoException, err:
             raise ExtractException('Cannot unencode message: %s' % (err))
         except Exception as err:
-            raise ExtractException('Invalid signature: %s' (err))
+            raise ExtractException('Invalid signature %s: %s' (self._header['signature'], err))
 
