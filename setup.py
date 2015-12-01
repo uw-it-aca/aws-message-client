@@ -17,7 +17,8 @@ setup(
         'setuptools',
         'django',
         'boto',
-        'PyCrypto'
+        'PyCrypto',
+        'cryptography==1.1'
     ],
     license='Apache License, Version 2.0',  # example license
     description='A Django Application on which to build AWS SQS endpoints and SQS gatherers',
