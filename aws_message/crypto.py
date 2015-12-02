@@ -7,11 +7,14 @@ from django.core.cache import cache
 import string
 import urllib3
 import warnings
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore",category=DeprecationWarning)
-    from OpenSSL import crypto
-    from Crypto.Cipher import AES
-    from hashlib import sha1
+try:
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore",category=DeprecationWarning)
+        from OpenSSL import crypto
+        from Crypto.Cipher import AES
+        from hashlib import sha1
+except:
+    pass
 
 
 class CryptoException(Exception): pass
