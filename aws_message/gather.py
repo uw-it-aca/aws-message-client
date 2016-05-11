@@ -4,7 +4,7 @@ import ssl
 from boto.sqs.connection import SQSConnection
 from boto.sqs.message import RawMessage
 from django.conf import settings
-from django.utils.log import getLogger
+from logging import getLogger
 from aws_message.aws import SNS, SNSException
 import json
 
@@ -64,9 +64,9 @@ class Gather(object):
                             self._processor(self._settings.get('PAYLOAD_SETTINGS', {}),
                                             aws.extract()).process()
                         elif sqs_msg['Type'] == 'SubscriptionConfirmation':
-                            self._log.error('SubscribeURL: ' + sqs_msg['SubscribeURL'])
+                            self._log.debug('SubscribeURL: ' + sqs_msg['SubscribeURL'])
                     else:
-                        raise GatherException('Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
+                        self._log.debug('Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
                 except ValueError as err:
                     raise GatherException('JSON : %s' % err)
                 except self._exception, err:
@@ -80,7 +80,7 @@ class Gather(object):
                     self._queue.delete_message(msg)
 
             if len(msgs) < n:
-                self._log.info("SQS drained")
+                self._log.debug("SQS drained")
                 break
 
             to_fetch -= n
