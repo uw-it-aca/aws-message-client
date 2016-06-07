@@ -7,18 +7,14 @@ from django.core.cache import cache
 import string
 import urllib3
 import logging
+import imp
+from Crypto.Cipher import AES
+from hashlib import sha1
+logging.captureWarnings(True)
 try:
-    logging.captureWarnings(True)
+    imp.find_module('OpenSSL')
+except ImportError:
     from OpenSSL import crypto
-    from Crypto.Cipher import AES
-    from hashlib import sha1
-except AttributeError:
-    import warnings
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore",category=DeprecationWarning)
-        from OpenSSL import crypto
-        from Crypto.Cipher import AES
-        from hashlib import sha1
 
 
 class CryptoException(Exception): pass
