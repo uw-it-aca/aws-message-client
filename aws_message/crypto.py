@@ -7,10 +7,14 @@ from django.core.cache import cache
 import string
 import urllib3
 import logging
-import imp
+
+# shunt warnings to logging
+logging.captureWarnings(True)
 from Crypto.Cipher import AES
 from hashlib import sha1
-logging.captureWarnings(True)
+
+# step around OpenSSL import sensitivity
+import imp
 try:
     imp.find_module('OpenSSL')
 except ImportError:
