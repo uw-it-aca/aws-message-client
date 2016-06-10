@@ -17,6 +17,7 @@ setup(
         'setuptools',
         'django',
         'boto',
+        'oscrypto',
         'PyCrypto'
     ],
     license='Apache License, Version 2.0',  # example license

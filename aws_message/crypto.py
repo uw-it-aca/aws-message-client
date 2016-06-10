@@ -12,13 +12,8 @@ import logging
 logging.captureWarnings(True)
 from Crypto.Cipher import AES
 from hashlib import sha1
-
-# step around OpenSSL import sensitivity
-import imp
-try:
-    imp.find_module('OpenSSL')
-except ImportError:
-    from OpenSSL import crypto
+from oscrypto import asymmetric as oscrypto_asymmetric
+from oscrypto import errors as oscrypto_errors
 
 
 class CryptoException(Exception): pass
@@ -73,9 +68,10 @@ class Signature(object):
             raise CryptoException('Cannot validate: no certificate')
 
         try:
-            cert = crypto.load_certificate(crypto.FILETYPE_PEM, self._cert)
-            crypto.verify(cert, sig, msg, 'sha1')
-        except Exception, err:
+            oscrypto_asymmetric.rsa_pkcs1v15_verify(
+                oscrypto_asymmetric.load_certificate(self._cert),
+                sig, msg, 'sha1')
+        except oscrypto_errors.SignatureError:
             raise CryptoException('Cannot validate: %s' % (err))
 
 
