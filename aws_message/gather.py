@@ -18,10 +18,19 @@ class Gather(object):
     Class to gather event messages from AWS SQS queue,
     validate and process their content
     """
-    def __init__(self, sqs_settings, processor, exception):
-        self._settings = sqs_settings
-        self._processor = processor
-        self._exception = exception
+    def __init__(self, sqs_settings=None, processor=None, exception=None):
+        import pdb; pdb.set_trace()
+        if not processor:
+            raise GatherException('missing event processor')
+        else:
+            self._processor = processor
+
+        self._exception = exception if exception \
+                          else processor.EXCEPTION_CLASS
+
+        self._settings = sqs_settings if sqs_settings \
+                         else settings.AWS_SQS.get(processor.SETTINGS_NAME)
+
         self._topicArn = self._settings.get('TOPIC_ARN')
 
         connection_kwargs = {
@@ -49,8 +58,9 @@ class Gather(object):
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
         while to_fetch > 0:
             n = min([to_fetch, 10])
-            msgs = self._queue.get_messages(num_messages=n,
-                                            visibility_timeout=self._settings.get('VISIBILITY_TIMEOUT'))
+            msgs = self._queue.get_messages(
+                num_messages=n,
+                visibility_timeout=self._settings.get('VISIBILITY_TIMEOUT'))
             for msg in msgs:
                 try:
                     sqs_msg = json.loads(msg.get_body())
