@@ -19,7 +19,6 @@ class Gather(object):
     validate and process their content
     """
     def __init__(self, sqs_settings=None, processor=None, exception=None):
-        import pdb; pdb.set_trace()
         if not processor:
             raise GatherException('missing event processor')
         else:
