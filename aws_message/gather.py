@@ -70,12 +70,15 @@ class Gather(object):
                             aws.validate()
 
                         if sqs_msg['Type'] == 'Notification':
-                            self._processor(self._settings.get('PAYLOAD_SETTINGS', {}),
-                                            aws.extract()).process()
+                            settings = self._settings.get('PAYLOAD_SETTINGS', {})
+                            message = aws.extract()
+                            self._processor(settings, message).process()
                         elif sqs_msg['Type'] == 'SubscriptionConfirmation':
-                            self._log.debug('SubscribeURL: ' + sqs_msg['SubscribeURL'])
+                            self._log.debug(
+                                'SubscribeURL: ' + sqs_msg['SubscribeURL'])
                     else:
-                        self._log.debug('Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
+                        self._log.warning(
+                            'Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
                 except ValueError as err:
                     raise GatherException('JSON : %s' % err)
                 except self._exception, err:
