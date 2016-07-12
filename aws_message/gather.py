@@ -25,10 +25,10 @@ class Gather(object):
             self._processor = processor
 
         self._exception = exception if exception \
-                          else processor.EXCEPTION_CLASS
+            else processor.EXCEPTION_CLASS
 
         self._settings = sqs_settings if sqs_settings \
-                         else settings.AWS_SQS.get(processor.SETTINGS_NAME)
+            else settings.AWS_SQS.get(processor.SETTINGS_NAME)
 
         self._topicArn = self._settings.get('TOPIC_ARN')
 
@@ -37,17 +37,18 @@ class Gather(object):
             'aws_secret_access_key': self._settings.get('KEY')
         }
 
-        if (hasattr(self._settings, 'LOCAL_CLIENT_VALIDATION')
-            and self._settings.get('LOCAL_CLIENT_VALIDATION')):
-            connection_kwargs['https_connection_factory'] = (https_connection_factory, ())
+        if (hasattr(self._settings, 'LOCAL_CLIENT_VALIDATION') and
+                self._settings.get('LOCAL_CLIENT_VALIDATION')):
+            connection_kwargs['https_connection_factory'] = (
+                https_connection_factory, ())
 
         connection = SQSConnection(**connection_kwargs)
 
-        if connection == None:
+        if connection is None:
             raise GatherException('no connection')
 
         self._queue = connection.get_queue(self._settings.get('QUEUE'))
-        if self._queue == None:
+        if self._queue is None:
             raise GatherException('no queue')
 
         self._log = getLogger(__name__)
@@ -60,6 +61,7 @@ class Gather(object):
             msgs = self._queue.get_messages(
                 num_messages=n,
                 visibility_timeout=self._settings.get('VISIBILITY_TIMEOUT'))
+
             for msg in msgs:
                 try:
                     sqs_msg = json.loads(msg.get_body())
@@ -70,7 +72,8 @@ class Gather(object):
                             aws.validate()
 
                         if sqs_msg['Type'] == 'Notification':
-                            settings = self._settings.get('PAYLOAD_SETTINGS', {})
+                            settings = self._settings.get(
+                                'PAYLOAD_SETTINGS', {})
                             message = aws.extract()
                             self._processor(settings, message).process()
                         elif sqs_msg['Type'] == 'SubscriptionConfirmation':
@@ -99,13 +102,15 @@ class Gather(object):
 
 
 class HTTPSConnectionValidating(httplib.HTTPSConnection):
-    def __init__(self, host, port=None, key_file=None, cert_file=None, timeout=None, strict=None):
-        httplib.HTTPSConnection.__init__(self, host, port=port, key_file=key_file,
-                                         cert_file=cert_file, timeout=timeout, strict=strict)
+    def __init__(self, host, port=None, key_file=None,
+                 cert_file=None, timeout=None, strict=None):
+        httplib.HTTPSConnection.__init__(
+            self, host, port=port, key_file=key_file,
+            cert_file=cert_file, timeout=timeout, strict=strict)
         self.key_file = key_file
         self.cert_file = cert_file
         self.timeout = timeout
-        
+
     def connect(self):
         sock = socket.create_connection((self.host, self.port), self.timeout)
         if self._tunnel_host:

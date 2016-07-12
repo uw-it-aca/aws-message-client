@@ -16,7 +16,8 @@ from oscrypto import asymmetric as oscrypto_asymmetric
 from oscrypto import errors as oscrypto_errors
 
 
-class CryptoException(Exception): pass
+class CryptoException(Exception):
+    pass
 
 
 class Signature(object):
@@ -46,7 +47,7 @@ class Signature(object):
             cert_ref = cert['reference']
             key = sha1(cert_ref).hexdigest()
             self._cert = cache.get(key)
-            if self._cert == None:
+            if self._cert is None:
                 try:
                     http = urllib3.PoolManager(
                         cert_reqs='CERT_REQUIRED',
@@ -57,21 +58,24 @@ class Signature(object):
                         self._cert = r.data
                         cache.set(key, self._cert)
                     else:
-                        raise CryptoException('Cannot get certificate %s: status %s' % (cert_ref, r.status))
+                        raise CryptoException(
+                            'Cannot get certificate %s: status %s' % (
+                                cert_ref, r.status))
                 except urllib3.exceptions.HTTPError, err:
-                    raise CryptoException('Cannot get certificate %s: %s' % (cert_ref, err))
+                    raise CryptoException(
+                        'Cannot get certificate %s: %s' % (cert_ref, err))
         else:
             raise CryptoException('Unrecognized certificate reference type')
 
     def validate(self, msg, sig):
-        if self._cert == None:
+        if self._cert is None:
             raise CryptoException('Cannot validate: no certificate')
 
         try:
             oscrypto_asymmetric.rsa_pkcs1v15_verify(
                 oscrypto_asymmetric.load_certificate(self._cert),
                 sig, msg, 'sha1')
-        except oscrypto_errors.SignatureError:
+        except oscrypto_errors.SignatureError as err:
             raise CryptoException('Cannot validate: %s' % (err))
 
 
@@ -79,7 +83,7 @@ class aes128cbc(object):
 
     _key = None
     _iv = None
-                     
+
     def __init__(self, key, iv):
         """
         Advanced Encryption Standard object
@@ -113,7 +117,8 @@ class aes128cbc(object):
             raise CryptoException('Cannot decrypt message: %s' % (err))
 
     def pad(self, s):
-        return s + (self._block_size - len(s) % self._block_size) * chr(self._block_size - len(s) % self._block_size)
+        return s + (self._block_size - len(s) % self._block_size) * \
+            chr(self._block_size - len(s) % self._block_size)
 
     def unpad(self, s):
         return s[0:-ord(s[-1])]

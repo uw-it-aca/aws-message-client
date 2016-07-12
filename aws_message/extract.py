@@ -56,12 +56,16 @@ class Extract(object):
     def _validate(self):
         to_sign = self._header[u'contentType'] + '\n'
         if 'keyId' in self._header:
-            to_sign += self._header[u'iv'] + '\n' + self._header[u'keyId'] + '\n'
+            to_sign += self._header[u'iv'] + '\n' + \
+                       self._header[u'keyId'] + '\n'
         to_sign += self._header[u'messageContext'] + '\n' + \
-                  self._header[u'messageId'] + '\n' + \
-                  self._header[u'messageType'] + '\n' + self._header[u'sender'] + '\n' + \
-                  self._header[u'signingCertUrl'] + '\n' + self._header[u'timestamp'] + '\n' + \
-                  self._header[u'version'] + '\n' + self._body + '\n'
+            self._header[u'messageId'] + '\n' + \
+            self._header[u'messageType'] + '\n' + \
+            self._header[u'sender'] + '\n' + \
+            self._header[u'signingCertUrl'] + '\n' + \
+            self._header[u'timestamp'] + '\n' + \
+            self._header[u'version'] + '\n' + \
+            self._body + '\n'
 
         sig_conf = {
             'cert': {
@@ -76,5 +80,5 @@ class Extract(object):
         except CryptoException, err:
             raise ExtractException('Cannot unencode message: %s' % (err))
         except Exception as err:
-            raise ExtractException('Invalid signature %s: %s' (self._header['signature'], err))
-
+            raise ExtractException('Invalid signature %s: %s' (
+                self._header['signature'], err))

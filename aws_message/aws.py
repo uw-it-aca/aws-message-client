@@ -43,17 +43,21 @@ class SNS(object):
         }
 
         try:
-            Signature(sig_conf).validate(self._signText(), b64decode(self._message['Signature']))
+            Signature(sig_conf).validate(
+                self._signText(), b64decode(self._message['Signature']))
         except CryptoException, err:
-            raise SNSException('%s validation fail: %s' % (self._message['Type'], err))
+            raise SNSException(
+                '%s validation fail: %s' % (self._message['Type'], err))
         except Exception, err:
-            raise SNSException('Invalid SNS %s: %s' % (self._message['Type'], err))
+            raise SNSException(
+                'Invalid SNS %s: %s' % (self._message['Type'], err))
 
     def _signText(self):
         to_sign = ''
-        # see: http://docs.amazonwebservices.com/sns/latest/gsg/SendMessageToHttp.verify.signature.html
-        to_sign  = self._sigElement('Message')
-        to_sign += self._sigElement('MessageId')
+        # see: ("http://docs.amazonwebservices.com/sns/latest/"
+        #       "gsg/SendMessageToHttp.verify.signature.html")
+        to_sign = self._sigElement('Message') + \
+            self._sigElement('MessageId')
         if self._message['Type'] == 'Notification':
             if 'Subject' in self._message:
                 to_sign += self._sigElement('Subject')
@@ -88,6 +92,10 @@ class SNS(object):
             )
             r = http.request('GET', self._message['SubscribeURL'])
             if r.status != 200:
-                raise SNSException('Subscribe to %s failure: status: %s' % (self._message['TopicArn'], r.status))
+                raise SNSException(
+                    'Subscribe to %s failure: status: %s' % (
+                        self._message['TopicArn'], r.status))
         except urllib3.exceptions.HTTPError, err:
-            raise SNSException('Subscribe to %s failure: %s' % (self._message['TopicArn'], err))
+            raise SNSException(
+                'Subscribe to %s failure: %s' % (
+                    self._message['TopicArn'], err))
