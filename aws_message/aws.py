@@ -45,10 +45,10 @@ class SNS(object):
         try:
             Signature(sig_conf).validate(
                 self._signText(), b64decode(self._message['Signature']))
-        except CryptoException, err:
+        except CryptoException as err:
             raise SNSException(
                 '%s validation fail: %s' % (self._message['Type'], err))
-        except Exception, err:
+        except Exception as err:
             raise SNSException(
                 'Invalid SNS %s: %s' % (self._message['Type'], err))
 
@@ -95,7 +95,7 @@ class SNS(object):
                 raise SNSException(
                     'Subscribe to %s failure: status: %s' % (
                         self._message['TopicArn'], r.status))
-        except urllib3.exceptions.HTTPError, err:
+        except urllib3.exceptions.HTTPError as err:
             raise SNSException(
                 'Subscribe to %s failure: %s' % (
                     self._message['TopicArn'], err))

@@ -19,11 +19,12 @@ setup(
     version=VERSION,
     packages=['aws_message'],
     include_package_data=True,
-    install_requires = ['Django>=1.10',
-                        'boto',
-                        'oscrypto',
-                        'urllib3',
-                       ],
+    install_requires = [
+        'Django>=1.10',
+        'boto',
+        'oscrypto',
+        'urllib3',
+    ],
     license='Apache License, Version 2.0',
     description=('An application on which to build AWS SQS endpoints and '
                  'SQS gatherers'),

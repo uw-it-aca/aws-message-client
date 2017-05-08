@@ -4,8 +4,7 @@ from aws_message.aws import SNSException
 from django.conf import settings
 try:
     from importlib import import_module
-except:
-    # python 2.6
+except ImportError:
     from django.utils.importlib import import_module
 from hashlib import sha1
 import httplib
@@ -40,7 +39,7 @@ class SQSQueue(object):
                 raise SNSException('no queue')
 
             self._queue.set_message_class(RawMessage)
-        except KeyError:
+        except KeyError as err:
             self._queue = SQSQueueMock(*args, **kwargs)
 
     def get_messages(self, *args, **kwargs):
