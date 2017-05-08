@@ -1,19 +1,15 @@
-#
-#  signature and encryption classes
-#
-
 from django.conf import settings
 from django.core.cache import cache
+from Crypto.Cipher import AES
+from hashlib import sha1
+from oscrypto import asymmetric as oscrypto_asymmetric
+from oscrypto import errors as oscrypto_errors
 import string
 import urllib3
 import logging
 
 # shunt warnings to logging
 logging.captureWarnings(True)
-from Crypto.Cipher import AES
-from hashlib import sha1
-from oscrypto import asymmetric as oscrypto_asymmetric
-from oscrypto import errors as oscrypto_errors
 
 
 class CryptoException(Exception):
