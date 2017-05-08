@@ -1,0 +1,22 @@
+sudo: false
+language: python
+python:
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
+before_script:
+- pip install -e .
+- pip install pep8
+- pip install coverage
+- pip install python-coveralls
+- cp travis-ci/manage.py manage.py
+script:
+- pep8 --exclude=aws_message/tests aws_message
+- python -m compileall aws_message/
+- coverage run --source=aws_message/ manage.py test aws_message
+after_success:
+- coveralls
+before_deploy:
+- find aws_message/ -name \*.pyc -exec rm {} \;
+- echo $TRAVIS_TAG > aws_message/VERSION

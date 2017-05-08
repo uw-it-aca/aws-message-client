@@ -1,0 +1,4 @@
+[run]
+branch = True
+source = aws_message
+include = aws_message/*
