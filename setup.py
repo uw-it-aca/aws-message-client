@@ -20,7 +20,7 @@ setup(
     packages=['aws_message'],
     include_package_data=True,
     install_requires = [
-        'Django>=1.10',
+        'Django>=1.10,<1.11',
         'boto',
         'oscrypto',
         'urllib3',
