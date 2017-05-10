@@ -57,11 +57,11 @@ class Gather(object):
                             'Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
                 except ValueError as err:
                     raise GatherException('JSON : %s' % err)
-                except self._exception, err:
+                except self._exception as err:
                     raise GatherException("MESSAGE: %s" % err)
-                except SNSException, err:
+                except SNSException as err:
                     raise GatherException("SNS: %s" % err)
-                except Exception, err:
+                except Exception as err:
                     self._log.exception("Gather Error")
                     raise GatherException("ERROR: %s" % err)
                 else:

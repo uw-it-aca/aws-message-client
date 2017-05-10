@@ -77,7 +77,7 @@ class Extract(object):
         try:
             Signature(sig_conf).validate(to_sign.encode('ascii'),
                                          b64decode(self._header['signature']))
-        except CryptoException, err:
+        except CryptoException as err:
             raise ExtractException('Cannot unencode message: %s' % (err))
         except Exception as err:
             raise ExtractException('Invalid signature %s: %s' (

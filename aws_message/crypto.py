@@ -1,19 +1,15 @@
-#
-#  signature and encryption classes
-#
-
 from django.conf import settings
 from django.core.cache import cache
+from Crypto.Cipher import AES
+from hashlib import sha1
+from oscrypto import asymmetric as oscrypto_asymmetric
+from oscrypto import errors as oscrypto_errors
 import string
 import urllib3
 import logging
 
 # shunt warnings to logging
 logging.captureWarnings(True)
-from Crypto.Cipher import AES
-from hashlib import sha1
-from oscrypto import asymmetric as oscrypto_asymmetric
-from oscrypto import errors as oscrypto_errors
 
 
 class CryptoException(Exception):
@@ -61,7 +57,7 @@ class Signature(object):
                         raise CryptoException(
                             'Cannot get certificate %s: status %s' % (
                                 cert_ref, r.status))
-                except urllib3.exceptions.HTTPError, err:
+                except urllib3.exceptions.HTTPError as err:
                     raise CryptoException(
                         'Cannot get certificate %s: %s' % (cert_ref, err))
         else:
@@ -106,14 +102,14 @@ class aes128cbc(object):
         try:
             crypt = AES.new(self._key, AES.MODE_CBC, self._iv)
             return crypt.encrypt(msg)
-        except Exception, err:
+        except Exception as err:
             raise CryptoException('Cannot decrypt message: %s' % (err))
 
     def decrypt(self, msg):
         try:
             crypt = AES.new(self._key, AES.MODE_CBC, self._iv)
             return crypt.decrypt(msg)
-        except Exception, err:
+        except Exception as err:
             raise CryptoException('Cannot decrypt message: %s' % (err))
 
     def pad(self, s):

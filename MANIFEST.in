@@ -1,0 +1,2 @@
+include aws_message/VERSION
+recursive-include aws_message *
