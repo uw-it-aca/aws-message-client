@@ -22,6 +22,7 @@ setup(
     install_requires = [
         'Django>=1.10,<1.11',
         'boto',
+        'pycrypto',
         'oscrypto',
         'urllib3',
     ],
