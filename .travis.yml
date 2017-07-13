@@ -22,7 +22,6 @@ before_deploy:
 - echo $TRAVIS_TAG > aws_message/VERSION
 deploy:
   provider: pypi
-  server: https://pypi.python.org/pypi
   user: uw-it-aca
   skip_cleanup: true
   password:
