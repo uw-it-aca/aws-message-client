@@ -96,7 +96,7 @@ class SQSQueueMock(object):
                         'app': app,
                     }
                     self._app_mock_dirs.append(data)
-        except:
+        except Exception:
             pass
 
     def get_messages(self, *args, **kwargs):
@@ -109,7 +109,7 @@ class SQSQueueMock(object):
                     msg = handle.read()
                     if self._hash(msg) not in self._seen_messages:
                         return [RawMessage(body=msg)]
-        except:
+        except Exception:
             pass
 
         return []
