@@ -30,6 +30,14 @@ class SNS(object):
         """
         self._message = message
 
+    def extract(self):
+        message = self._message['Message']
+
+        if re.match(r'^[a-zA-Z0-9]+[=]{0,2}$', message):
+            message = b64decode(message)
+
+        return json.loads(message)
+
     def validate(self):
         t = self._message['SignatureVersion']
         if t != '1':
@@ -43,8 +51,8 @@ class SNS(object):
         }
 
         try:
-            Signature(sig_conf).validate(
-                self._signText(), b64decode(self._message['Signature']))
+            Signature(sig_conf).validate(self._signText(),
+                                         b64decode(self._message['Signature']))
         except CryptoException as err:
             raise SNSException(
                 '%s validation fail: %s' % (self._message['Type'], err))
@@ -75,14 +83,6 @@ class SNS(object):
 
     def _sigElement(self, el):
         return '%s\n%s\n' % (el, self._message[el])
-
-    def extract(self):
-        message = self._message['Message']
-
-        if re.match(r'^[a-zA-Z0-9]+[=]{0,2}$', message):
-            message = b64decode(message)
-
-        return json.loads(message)
 
     def subscribe(self):
         try:

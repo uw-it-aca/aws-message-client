@@ -1,8 +1,11 @@
+import json
+from logging import getLogger
 from django.conf import settings
 from aws_message.aws import SNS, SNSException
 from aws_message.sqs import SQSQueue
-from logging import getLogger
-import json
+
+
+logger = getLogger(__name__)
 
 
 class GatherException(Exception):
@@ -25,36 +28,37 @@ class Gather(object):
             else settings.AWS_SQS.get(processor.SETTINGS_NAME)
         self._topicArn = self._settings.get('TOPIC_ARN')
         self._queue = SQSQueue(settings=self._settings)
-        self._log = getLogger(__name__)
 
     def gather_events(self):
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
         while to_fetch > 0:
-            n = min([to_fetch, 10])
-            msgs = self._queue.get_messages(
-                num_messages=n,
-                visibility_timeout=self._settings.get('VISIBILITY_TIMEOUT'))
+            messages = self._queue.get_messages(to_fetch)
 
-            for msg in msgs:
+            for msg in messages:
                 try:
-                    sqs_msg = json.loads(msg.get_body())
-                    if sqs_msg['TopicArn'] == self._topicArn:
-                        raw_message = SNS(sqs_msg)
+                    mbody = json.loads(msg.body)
+
+                    if mbody['TopicArn'] == self._topicArn:
+                        raw_message = SNS(mbody)
 
                         if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
                             raw_message.validate()
 
-                        if sqs_msg['Type'] == 'Notification':
+                        if mbody['Type'] == 'Notification':
                             settings = self._settings.get(
                                 'PAYLOAD_SETTINGS', {})
+
                             message = raw_message.extract()
+
                             self._processor(settings, message).process()
-                        elif sqs_msg['Type'] == 'SubscriptionConfirmation':
-                            self._log.debug(
-                                'SubscribeURL: ' + sqs_msg['SubscribeURL'])
+
+                        elif mbody['Type'] == 'SubscriptionConfirmation':
+                            logger.debug(
+                                'SubscribeURL: ' + mbody['SubscribeURL'])
                     else:
-                        self._log.warning(
-                            'Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
+                        logger.warning(
+                            'Unrecognized TopicARN : ' + mbody['TopicArn'])
+
                 except ValueError as err:
                     raise GatherException('JSON : %s' % err)
                 except self._exception as err:
@@ -62,13 +66,11 @@ class Gather(object):
                 except SNSException as err:
                     raise GatherException("SNS: %s" % err)
                 except Exception as err:
-                    self._log.exception("Gather Error")
-                    raise GatherException("ERROR: %s" % err)
+                    logger.exception("Gather Error")
+                    raise GatherException("ERROR: %s MESSAGE: %s" % (err, msg))
                 else:
-                    self._queue.delete_message(msg)
+                    message.delete()
 
-            if len(msgs) < n:
-                self._log.debug("SQS drained")
+            if len(messages) < to_fetch:
+                logger.debug("SQS drained")
                 break
-
-            to_fetch -= n

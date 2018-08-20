@@ -1,7 +1,3 @@
-from boto.sqs.connection import SQSConnection
-from boto.sqs.message import RawMessage
-from aws_message.aws import SNSException
-from django.conf import settings
 try:
     from importlib import import_module
 except ImportError:
@@ -14,39 +10,45 @@ import os
 import sys
 import inspect
 import glob
+import boto3
+from django.conf import settings
+from aws_message.aws import SNSException
 
 
 class SQSQueue(object):
+
     def __init__(self, *args, **kwargs):
         self._settings = kwargs.get('settings')
+        self.queue_name = self._settings.get('QUEUE')
         try:
-            connection_kwargs = {
-                'aws_access_key_id': self._settings['KEY_ID'],
-                'aws_secret_access_key': self._settings['KEY']
-            }
+            sqs = boto3.resource(
+                'sqs',
+                aws_access_key_id=self._settings['KEY_ID'],
+                aws_secret_access_key=self._settings['KEY'],
+                region_name=self._settings['REGION']
+            )
+            # By default SSL is used
+            # By default SSL certificates are verified
 
-            if self._settings.get('LOCAL_CLIENT_VALIDATION', False):
-                connection_kwargs['https_connection_factory'] = (
-                    https_connection_factory, ())
+            self._queue = sqs.get_queue_by_name(QueueName=self.queue_name)
 
-            connection = SQSConnection(**connection_kwargs)
-
-            if connection is None:
-                raise SNSException('no connection')
-
-            self._queue = connection.get_queue(self._settings.get('QUEUE'))
             if self._queue is None:
                 raise SNSException('no queue')
 
-            self._queue.set_message_class(RawMessage)
         except KeyError as err:
             self._queue = SQSQueueMock(*args, **kwargs)
 
-    def get_messages(self, *args, **kwargs):
-        return self._queue.get_messages(*args, **kwargs)
+    def get_messages(self, max_msgs_to_fetch):
+        return self._queue.receive_messages(
+            AttributeNames=['All'],
+            MessageAttributeNames=['All'],
+            MaxNumberOfMessages=max_msgs_to_fetch,
+            WaitTimeSeconds=self._settings.get('WAIT_TIME')
+            VisibilityTimeout=self._settings.get('VISIBILITY_TIMEOUT'))
 
-    def delete_message(self, *args, **kwargs):
-        return self._queue.delete_message(*args, **kwargs)
+    def delete_message(self, queue_url, receipt_handle):
+        return self._queue.delete_message(QueueUrl=queue_url,
+                                          ReceiptHandle=receipt_handle)
 
 
 class HTTPSConnectionValidating(httplib.HTTPSConnection):
