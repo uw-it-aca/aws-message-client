@@ -54,10 +54,6 @@ class Gather(object):
                 try:
                     mbody = json.loads(msg.body)
 
-                    if mbody['TopicArn'] != expected_topicArn:
-                        logger.warning('Unrecognized TopicARN: %s',
-                                       mbody['TopicArn'])
-
                     if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
                         validate_message_body(mbody)
 
@@ -69,8 +65,8 @@ class Gather(object):
 
                 except (SNSException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
-                    logger.error("ERROR: %s SKIP MESSAGE: %s" % (err, msg),
-                                 traceback.format_exc().splitlines())
+                    logger.error("ERROR: %s SKIP MESSAGE: %s, %s",
+                                 err, msg, traceback.format_exc().splitlines())
                 else:
                     msg.delete()
                     # inform the queue that this message has been processed
