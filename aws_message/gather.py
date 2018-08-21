@@ -2,8 +2,8 @@ import json
 from logging import getLogger
 import traceback
 from django.conf import settings
-from aws_message.aws import SNSException, extract_inner_message,\
-    validate_message_body, subscribe
+from aws_message.message import SNSException, extract_inner_message,\
+    validate_message_body
 from aws_message.processor import ProcessorException
 from aws_message.sqs import SQSQueue
 
