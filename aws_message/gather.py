@@ -30,23 +30,28 @@ class Gather(object):
             raise GatherException('missing event processor')
 
         self._processor = processor
+
         self._exception = exception if exception \
             else processor.EXCEPTION_CLASS
+
         self._settings = sqs_settings if sqs_settings \
             else settings.AWS_SQS.get(processor.SETTINGS_NAME)
+
         self._topicArn = self._settings.get('TOPIC_ARN')
+
         self._queue = SQSQueue(settings=self._settings)
 
     def gather_events(self):
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
+
         while to_fetch > 0:
             messages = self._queue.get_messages(to_fetch)
-
             for msg in messages:
                 try:
                     mbody = json.loads(msg.body)
 
-                    if mbody['TopicArn'] == self._topicArn:
+                    if (self._topicArn is None or
+                            mbody['TopicArn'] == self._topicArn):
                         raw_message = SNS(mbody)
 
                         if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
@@ -69,10 +74,6 @@ class Gather(object):
 
                 except ValueError as err:
                     raise GatherException('JSON : %s' % err)
-                except self._exception as err:
-                    raise GatherException("MESSAGE: %s" % err)
-                except SNSException as err:
-                    raise GatherException("SNS: %s" % err)
                 except Exception as err:
                     logger.exception("Gather Error")
                     raise GatherException("ERROR: %s MESSAGE: %s" % (err, msg))
