@@ -1,5 +1,4 @@
 import logging
-import re
 from abc import ABCMeta, abstractmethod
 from django.conf import settings
 
@@ -14,10 +13,6 @@ class InnerMessageProcessor(object):
     def __init__(self, logger,
                  queue_settings_name=None,
                  is_encrypted=False):
-        """
-        :param message: a dict representing a UW Course Event Inner Message
-        Raises EventException
-        """
         self.logger = logger
         if queue_settings_name:
             self.settings = settings.AWS_SQS.get(queue_settings_name)
