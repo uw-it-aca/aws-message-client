@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 class MockProcessor(InnerMessageProcessor):
 
-    def __init__(self, message):
-        super(MockProcessor, self).__init__(logger, message)
+    def __init__(self):
+        super(MockProcessor, self).__init__(logger)
 
     def process_inner_message(self, json_data):
         return json_data['EventDate'], json_data['Href'], json_data['Current']
@@ -64,7 +64,7 @@ class TestMockProcessor(TestCase):
 
     def test_process(self):
         try:
-            processor = MockProcessor(M1)
+            processor = MockProcessor()
             event_date, href, current = processor.process_inner_message(M1)
             self.assertEqual(
                 event_date, "2018-08-12T16:39:08.2704415-07:00")

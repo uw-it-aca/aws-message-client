@@ -25,7 +25,9 @@ class SQSQueue(object):
         self._settings = kwargs.get('settings')
         self.queue_name = self._settings.get('QUEUE')
         self.queue_url_pattern = re.compile(
-            r"^https://queue.amazonaws.com/[0-9]+/%s$" % self.queue_name)
+            r"^https://queue.amazonaws.com/%s/%s$" %
+            (self._settings.get('ACCOUNT_NUMBER'), self.queue_name))
+
         try:
             sqs = boto3.resource(
                 'sqs',
@@ -37,7 +39,6 @@ class SQSQueue(object):
             # By default SSL certificates are verified
 
             self._queue = sqs.get_queue_by_name(QueueName=self.queue_name)
-
             if self._queue is None:
                 raise SQSException('No queue by name %s' % self.queue_name)
 

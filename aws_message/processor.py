@@ -1,5 +1,7 @@
 import logging
 import re
+from abc import ABCMeta, abstractmethod
+from django.conf import settings
 
 
 class ProcessorException(Exception):
@@ -7,41 +9,53 @@ class ProcessorException(Exception):
 
 
 class InnerMessageProcessor(object):
+    __metaclass__ = ABCMeta
 
-    SETTINGS_NAME = None
-    EXCEPTION_CLASS = ProcessorException
-
-    def __init__(self, logger, message, is_encrypted=False):
+    def __init__(self, logger,
+                 queue_settings_name=None,
+                 is_encrypted=False):
         """
         :param message: a dict representing a UW Course Event Inner Message
         Raises EventException
         """
         self.logger = logger
+        if queue_settings_name:
+            self.settings = settings.AWS_SQS.get(queue_settings_name)
         self.is_encrypted = is_encrypted
-        self.message = message
-        self.logger.debug(message)
 
-    def decrypt_inner_message(self):
+    def decrypt_inner_message(self, message):
         """
-        if the inner message is encrypted, decrypt the message body
+        Override in the sub-class if the inner message is encrypted
         """
         pass
 
-    def extract(self):
+    def extract(self, message):
         if not self.is_encrypted:
-            return self.message
+            return message
 
         try:
-            return self.decrypt_inner_message()
+            return self.decrypt_inner_message(message)
         except Exception as err:
-            raise ProcessorException("decrypt_inner_message %s ==> %s" %
-                                     (self.message, err))
+            log_msg = "decrypt_inner_message %s ==> %s" % (message, err)
+            self.logger.error(log_msg)
+            raise ProcessorException(log_msg)
 
-    def process(self):
-        self.process_inner_message(self.extract())
+    def get_payload_setting(self):
+        return self.settings.get('PAYLOAD_SETTINGS') if self.settings else None
 
+    def get_queue_setting(self):
+        return self.settings
+
+    def process(self, message):
+        """
+        :param message: the inner message json data
+        """
+        self.process_inner_message(self.extract(message))
+
+    @abstractmethod
     def process_inner_message(self, json_data):
         """
         A sub-class must define this method
+        :raises ProcessorException: any error unable to handle
         """
-        raise ProcessorException('Please define process method')
+        pass

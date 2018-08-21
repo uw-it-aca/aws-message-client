@@ -1,7 +1,10 @@
 import json
 from logging import getLogger
+import traceback
 from django.conf import settings
-from aws_message.aws import SNS, SNSException
+from aws_message.aws import SNSException, extract_inner_message,\
+    validate_message_body, subscribe
+from aws_message.processor import ProcessorException
 from aws_message.sqs import SQSQueue
 
 
@@ -23,63 +26,52 @@ class Gather(object):
                  processor=None,
                  exception=None):
         """
-        :param processor: A sub-class of InnerMessageProcessor
+        :param processor: A sub-class object of InnerMessageProcessor
         """
 
         if not processor:
             raise GatherException('missing event processor')
 
         self._processor = processor
-
-        self._exception = exception if exception \
-            else processor.EXCEPTION_CLASS
-
         self._settings = sqs_settings if sqs_settings \
-            else settings.AWS_SQS.get(processor.SETTINGS_NAME)
+            else self._processor.get_queue_setting()
 
         self._topicArn = self._settings.get('TOPIC_ARN')
 
         self._queue = SQSQueue(settings=self._settings)
+        # if Exception, abort!
 
     def gather_events(self):
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
 
         while to_fetch > 0:
             messages = self._queue.get_messages(to_fetch)
+
+            if len(messages) == 0:
+                logger.info("SQS queue %s is drained" % self._queue.url)
+                break
+
             for msg in messages:
                 try:
                     mbody = json.loads(msg.body)
 
-                    if (self._topicArn is None or
-                            mbody['TopicArn'] == self._topicArn):
-                        raw_message = SNS(mbody)
+                    if mbody['TopicArn'] != self._topicArn:
+                        logger.warning('Unrecognized TopicARN: %s',
+                                       mbody['TopicArn'])
 
-                        if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
-                            raw_message.validate()
+                    if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
+                        validate_message_body(mbody)
 
-                        if mbody['Type'] == 'Notification':
-                            settings = self._settings.get(
-                                'PAYLOAD_SETTINGS', {})
+                    if mbody['Type'] == 'Notification':
+                        self._processor.process(extract_inner_message(mbody))
 
-                            message = raw_message.extract()
+                    elif mbody['Type'] == 'SubscriptionConfirmation':
+                        logger.info('SubscribeURL: %s', mbody['SubscribeURL'])
 
-                            self._processor(settings, message).process()
-
-                        elif mbody['Type'] == 'SubscriptionConfirmation':
-                            logger.debug(
-                                'SubscribeURL: ' + mbody['SubscribeURL'])
-                    else:
-                        logger.warning(
-                            'Unrecognized TopicARN : ' + mbody['TopicArn'])
-
-                except ValueError as err:
-                    raise GatherException('JSON : %s' % err)
-                except Exception as err:
-                    logger.exception("Gather Error")
-                    raise GatherException("ERROR: %s MESSAGE: %s" % (err, msg))
+                except SNSException, ProcessorException as err:
+                    # log message specific error, abort if unknown error
+                    logger.error("ERROR: %s SKIP MESSAGE: %s" % (err, msg),
+                                 traceback.format_exc().splitlines())
                 else:
-                    message.delete()
-
-            if len(messages) < to_fetch:
-                logger.debug("SQS drained")
-                break
+                    msg.delete()
+                    # inform the queue that this message has been processed
