@@ -68,7 +68,7 @@ class Gather(object):
                     elif mbody['Type'] == 'SubscriptionConfirmation':
                         logger.info('SubscribeURL: %s', mbody['SubscribeURL'])
 
-                except SNSException, ProcessorException as err:
+                except (SNSException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
                     logger.error("ERROR: %s SKIP MESSAGE: %s" % (err, msg),
                                  traceback.format_exc().splitlines())
