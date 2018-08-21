@@ -21,8 +21,9 @@ class SQSException(Exception):
 
 class SQSQueue(object):
 
-    def __init__(self, *args, **kwargs):
-        self._settings = kwargs.get('settings')
+    def __init__(self, sqs_settings):
+        self._settings = sqs_settings
+
         self.queue_name = self._settings.get('QUEUE')
         self.queue_url_pattern = re.compile(
             r"^https://queue.amazonaws.com/%s/%s$" %

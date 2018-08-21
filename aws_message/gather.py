@@ -22,9 +22,9 @@ class Gather(object):
     """
 
     def __init__(self,
-                 sqs_settings=None,
                  processor=None,
-                 exception=None):
+                 exception=None,
+                 sqs_settings=None):
         """
         :param processor: A sub-class object of InnerMessageProcessor
         """
@@ -36,12 +36,11 @@ class Gather(object):
         self._settings = sqs_settings if sqs_settings \
             else self._processor.get_queue_setting()
 
-        self._topicArn = self._settings.get('TOPIC_ARN')
-
-        self._queue = SQSQueue(settings=self._settings)
+        self._queue = SQSQueue(self._settings)
         # if Exception, abort!
 
     def gather_events(self):
+        expected_topicArn = self._settings.get('TOPIC_ARN')
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
 
         while to_fetch > 0:
@@ -55,7 +54,7 @@ class Gather(object):
                 try:
                     mbody = json.loads(msg.body)
 
-                    if mbody['TopicArn'] != self._topicArn:
+                    if mbody['TopicArn'] != expected_topicArn:
                         logger.warning('Unrecognized TopicARN: %s',
                                        mbody['TopicArn'])
 
