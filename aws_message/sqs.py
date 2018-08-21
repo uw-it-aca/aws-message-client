@@ -43,8 +43,8 @@ class SQSQueue(object):
             AttributeNames=['All'],
             MessageAttributeNames=['All'],
             MaxNumberOfMessages=max_msgs_to_fetch,
-            WaitTimeSeconds=self._settings.get('WAIT_TIME')
-            VisibilityTimeout=self._settings.get('VISIBILITY_TIMEOUT'))
+            WaitTimeSeconds=self._settings.get('WAIT_TIME', 10),
+            VisibilityTimeout=self._settings.get('VISIBILITY_TIMEOUT', 10))
 
     def delete_message(self, queue_url, receipt_handle):
         return self._queue.delete_message(QueueUrl=queue_url,

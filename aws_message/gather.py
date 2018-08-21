@@ -17,7 +17,15 @@ class Gather(object):
     Class to gather event messages from AWS SQS queue,
     validate and process their content
     """
-    def __init__(self, sqs_settings=None, processor=None, exception=None):
+
+    def __init__(self,
+                 sqs_settings=None,
+                 processor=None,
+                 exception=None):
+        """
+        :param processor: A sub-class of InnerMessageProcessor
+        """
+
         if not processor:
             raise GatherException('missing event processor')
 
