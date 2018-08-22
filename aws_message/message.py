@@ -44,8 +44,7 @@ def validate_message_body(mbody):
         Signature(sig_conf).validate(_signText(mbody),
                                      b64decode(mbody['Signature']))
     except Exception as err:
-        raise SNSException('validate_message_body (%s) fail: %s' % (
-            mbody, err))
+        raise SNSException('validate_message_body: %s (%s)' % (err, mbody))
 
 
 def _signText(mbody):
@@ -67,7 +66,8 @@ def _signText(mbody):
 
     to_sign += _sigElement('TopicArn', mbody)
     to_sign += _sigElement('Type', mbody)
-    return to_sign.encode('utf-8', mbody)
+
+    return to_sign.encode('utf-8')
 
 
 def _sigElement(el, mbody):

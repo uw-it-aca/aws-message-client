@@ -65,8 +65,8 @@ class Gather(object):
 
                 except (SNSException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
-                    logger.error("ERROR: %s SKIP MESSAGE: %s, %s",
-                                 err, msg, traceback.format_exc().splitlines())
+                    logger.error("ERROR: %s %s",
+                                 err, traceback.format_exc().splitlines())
                 else:
                     msg.delete()
                     # inform the queue that this message has been processed
