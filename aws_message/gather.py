@@ -47,7 +47,7 @@ class Gather(object):
             messages = self._queue.get_messages(to_fetch)
 
             if len(messages) == 0:
-                logger.info("SQS queue %s is drained" % self._queue.url)
+                logger.info("SQS queue is drained")
                 break
 
             for msg in messages:
