@@ -19,45 +19,15 @@ class MockProcessor(InnerMessageProcessor):
 
 M1 = {
     "EventID": "00000000-1111-2222-3333-444444444444",
-    "Href": "/v5/course/2018,autumn,MOCK,210/A/status.json",
+    "Href": "...",
     "EventDate": "2018-08-12T16:39:08.2704415-07:00",
     "Previous": {
         "CurrentEnrollment": 137,
         "CurrentRegistrationPeriod": "2",
-        "AddCodeRequired":  False,
-        "FacultyCodeRequired":  False,
-        "LimitEstimateEnrollment": 150,
-        "LimitEstimateEnrollmentIndicator": "limit",
-        "RoomCapacity": 250,
-        "Section": {
-            "Href": "/v5/course/2018,autumn,MOCK,210/A.json",
-            "Year": 2018,
-            "Quarter": "autumn",
-            "CurriculumAbbreviation": "MOCK",
-            "CourseNumber": "210",
-            "SectionID": "A",
-            "SLN": "12345"},
-        "SLN": "12345",
-        "SpaceAvailable": 13,
         "Status": "open"},
     "Current": {
         "CurrentEnrollment": 138,
         "CurrentRegistrationPeriod": "2",
-        "AddCodeRequired":  False,
-        "FacultyCodeRequired":  False,
-        "LimitEstimateEnrollment": 150,
-        "LimitEstimateEnrollmentIndicator": "limit",
-        "RoomCapacity": 250,
-        "Section": {
-            "Href": "/v5/course/2018,autumn,MOCK,210/A.json",
-            "Year": 2018,
-            "Quarter": "autumn",
-            "CurriculumAbbreviation": "MOCK",
-            "CourseNumber": "210",
-            "SectionID": "A",
-            "SLN": "12345"},
-        "SLN": "12345",
-        "SpaceAvailable": 12,
         "Status": "open"}
 }
 
@@ -70,5 +40,5 @@ class TestMockProcessor(TestCase):
         self.assertEqual(
             processor.event_date, "2018-08-12T16:39:08.2704415-07:00")
         self.assertEqual(
-            processor.href, "/v5/course/2018,autumn,MOCK,210/A/status.json")
+            processor.href, "...")
         self.assertIsNotNone(processor.current)

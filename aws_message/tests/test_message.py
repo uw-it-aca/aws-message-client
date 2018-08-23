@@ -12,7 +12,7 @@ mbody = {
  u'Signature': u'...',
  u'SigningCertURL': u'https://sss.qq-qqqq-1.aaaaaaaaa.com/SimpleNotificationService-00000000000000000000000000000000.pem',
  u'MessageId': u'11111111-0000-1111-2222-555555555555',
- u'Message': u'{"EventID":"00000000-1111-2222-3333-444444444444","Href":"/v5/course/2018,autumn,MOCK,101/B/status.json","EventDate":"2018-08-21T21:00:56.832068-07:00","Previous":{"CurrentEnrollment":19,"CurrentRegistrationPeriod":"2","AddCodeRequired":false,"FacultyCodeRequired":false,"LimitEstimateEnrollment":20,"LimitEstimateEnrollmentIndicator":"limit","RoomCapacity":42,"Section":{"Href":"/v5/course/2018,autumn,MOCK,101/B.json","Year":2018,"Quarter":"autumn","CurriculumAbbreviation":"MOCK","CourseNumber":"101","SectionID":"B","SLN":"22222"},"SLN":"22222","SpaceAvailable":1,"Status":"open"},"Current":{"CurrentEnrollment":20,"CurrentRegistrationPeriod":"2","AddCodeRequired":false,"FacultyCodeRequired":false,"LimitEstimateEnrollment":20,"LimitEstimateEnrollmentIndicator":"limit","RoomCapacity":42,"Section":{"Href":"/v5/course/2018,autumn,MOCK,101/B.json","Year":2018,"Quarter":"autumn","CurriculumAbbreviation":"MOCK","CourseNumber":"101","SectionID":"B","SLN":"22222"},"SLN":"22222","SpaceAvailable":0,"Status":"closed"}}',
+ u'Message': u'{"EventID":"00000000-1111-2222-3333-444444444444","Href":"...", "EventDate":"2018-08-21T21:00:56.832068-07:00","Previous":{"CurrentEnrollment":19,"Status":"open"},"Current":{"CurrentEnrollment":20,"Status":"closed"}}',
  u'UnsubscribeURL': u'https://sss.qq-qqqq-1.aaaaaaaaa.com/?Action=Unsubscribe&SubscriptionArn=arn:aaa:sss:qq-qqqq-1:...:...:...',
  u'Type': u'Notification',
  u'TopicArn': u'arn:aaa:sas:qq-qqqq-1:...:...:...',
