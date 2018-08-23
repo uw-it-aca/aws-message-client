@@ -21,7 +21,7 @@ mbody = {
 
 class TestMockProcessor(TestCase):
 
-    def test_validate_message_body(self):
+    def test_extract_inner_message(self):
         message = extract_inner_message(mbody)
         self.assertTrue("EventID" in message)
         self.assertTrue("Href" in message)
