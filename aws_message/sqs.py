@@ -2,6 +2,7 @@ import boto3
 import re
 from aws_message.mock_sqs import SQSQueueMock
 
+
 class SQSException(Exception):
     pass
 
