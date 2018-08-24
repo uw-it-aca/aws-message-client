@@ -24,8 +24,7 @@ setup(
         'boto3',
         'pycrypto',
         'oscrypto',
-        'urllib3',
-        'commonconf>=0.6',
+        'urllib3'
     ],
     license='Apache License, Version 2.0',
     description=('An application on which to build AWS SQS endpoints and '

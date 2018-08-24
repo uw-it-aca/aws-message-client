@@ -3,7 +3,10 @@ try:
 except ImportError:
     from django.utils.importlib import import_module
 from hashlib import sha1
-import httplib
+try:
+    from httplib import HTTPSConnection
+except ModuleNotFoundError:
+    from http.client import HTTPSConnection
 import socket
 import ssl
 import os
@@ -68,10 +71,10 @@ class SQSQueue(object):
         return self._queue.purge()
 
 
-class HTTPSConnectionValidating(httplib.HTTPSConnection):
+class HTTPSConnectionValidating(HTTPSConnection):
     def __init__(self, host, port=None, key_file=None,
                  cert_file=None, timeout=None, strict=None):
-        httplib.HTTPSConnection.__init__(
+        HTTPSConnection.__init__(
             self, host, port=port, key_file=key_file,
             cert_file=cert_file, timeout=timeout, strict=strict)
         self.key_file = key_file
