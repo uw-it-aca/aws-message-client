@@ -21,4 +21,4 @@ class TestSQSQueue(TestCase):
         try:
             queue = SQSQueue(SETTINGS)
         except Exception as ex:
-            self.assertTrue("InvalidClientTokenId" in str(ex))
+            self.assertTrue("Could not connect to the endpoint URL" in str(ex))
