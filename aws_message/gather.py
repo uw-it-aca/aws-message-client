@@ -40,7 +40,6 @@ class Gather(object):
         # if Exception, abort!
 
     def gather_events(self):
-        expected_topicArn = self._settings.get('TOPIC_ARN')
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
 
         while to_fetch > 0:
@@ -65,7 +64,7 @@ class Gather(object):
 
                 except (SNSException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
-                    logger.error("ERROR: %s %s",
+                    logger.error("%s %s",
                                  err, traceback.format_exc().splitlines())
                 else:
                     msg.delete()
