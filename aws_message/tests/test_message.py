@@ -1,6 +1,7 @@
 import logging
+from django.conf import settings
 from django.test import TestCase
-from aws_message.message import extract_inner_message
+from aws_message.message import extract_inner_message, validate_message_body
 
 
 logger = logging.getLogger(__name__)
@@ -28,3 +29,10 @@ class TestMockProcessor(TestCase):
         self.assertTrue("EventDate" in message)
         self.assertTrue("Previous" in message)
         self.assertTrue("Current" in message)
+
+    def test_validate_message_body(self):
+        with self.settings(AWS_CA_BUNDLE="/data/"):
+            try:
+                validate_message_body(mbody)
+            except Exception as ex:
+                self.assertTrue("Cannot get certificate" in str(ex))
