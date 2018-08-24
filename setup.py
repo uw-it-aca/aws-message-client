@@ -21,10 +21,10 @@ setup(
     include_package_data=True,
     install_requires = [
         'Django>=1.10,<1.11',
-        'boto',
+        'boto3',
         'pycrypto',
         'oscrypto',
-        'urllib3',
+        'urllib3'
     ],
     license='Apache License, Version 2.0',
     description=('An application on which to build AWS SQS endpoints and '
@@ -41,6 +41,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.6',
     ],
 )

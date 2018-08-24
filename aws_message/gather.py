@@ -1,8 +1,14 @@
-from django.conf import settings
-from aws_message.aws import SNS, SNSException
-from aws_message.sqs import SQSQueue
-from logging import getLogger
 import json
+from logging import getLogger
+import traceback
+from django.conf import settings
+from aws_message.message import SNSException, extract_inner_message,\
+    validate_message_body
+from aws_message.processor import ProcessorException
+from aws_message.sqs import SQSQueue
+
+
+logger = getLogger(__name__)
 
 
 class GatherException(Exception):
@@ -14,61 +20,52 @@ class Gather(object):
     Class to gather event messages from AWS SQS queue,
     validate and process their content
     """
-    def __init__(self, sqs_settings=None, processor=None, exception=None):
+
+    def __init__(self,
+                 processor=None,
+                 exception=None,
+                 sqs_settings=None):
+        """
+        :param processor: A sub-class object of InnerMessageProcessor
+        """
+
         if not processor:
             raise GatherException('missing event processor')
 
         self._processor = processor
-        self._exception = exception if exception \
-            else processor.EXCEPTION_CLASS
         self._settings = sqs_settings if sqs_settings \
-            else settings.AWS_SQS.get(processor.SETTINGS_NAME)
-        self._topicArn = self._settings.get('TOPIC_ARN')
-        self._queue = SQSQueue(settings=self._settings)
-        self._log = getLogger(__name__)
+            else self._processor.get_queue_setting()
+
+        self._queue = SQSQueue(self._settings)
+        # if Exception, abort!
 
     def gather_events(self):
         to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
+
         while to_fetch > 0:
-            n = min([to_fetch, 10])
-            msgs = self._queue.get_messages(
-                num_messages=n,
-                visibility_timeout=self._settings.get('VISIBILITY_TIMEOUT'))
+            messages = self._queue.get_messages(to_fetch)
 
-            for msg in msgs:
-                try:
-                    sqs_msg = json.loads(msg.get_body())
-                    if sqs_msg['TopicArn'] == self._topicArn:
-                        raw_message = SNS(sqs_msg)
-
-                        if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
-                            raw_message.validate()
-
-                        if sqs_msg['Type'] == 'Notification':
-                            settings = self._settings.get(
-                                'PAYLOAD_SETTINGS', {})
-                            message = raw_message.extract()
-                            self._processor(settings, message).process()
-                        elif sqs_msg['Type'] == 'SubscriptionConfirmation':
-                            self._log.debug(
-                                'SubscribeURL: ' + sqs_msg['SubscribeURL'])
-                    else:
-                        self._log.warning(
-                            'Unrecognized TopicARN : ' + sqs_msg['TopicArn'])
-                except ValueError as err:
-                    raise GatherException('JSON : %s' % err)
-                except self._exception as err:
-                    raise GatherException("MESSAGE: %s" % err)
-                except SNSException as err:
-                    raise GatherException("SNS: %s" % err)
-                except Exception as err:
-                    self._log.exception("Gather Error")
-                    raise GatherException("ERROR: %s" % err)
-                else:
-                    self._queue.delete_message(msg)
-
-            if len(msgs) < n:
-                self._log.debug("SQS drained")
+            if len(messages) == 0:
+                logger.info("SQS queue is drained")
                 break
 
-            to_fetch -= n
+            for msg in messages:
+                try:
+                    mbody = json.loads(msg.body)
+
+                    if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
+                        validate_message_body(mbody)
+
+                    if mbody['Type'] == 'Notification':
+                        self._processor.process(extract_inner_message(mbody))
+
+                    elif mbody['Type'] == 'SubscriptionConfirmation':
+                        logger.info('SubscribeURL: %s', mbody['SubscribeURL'])
+
+                except (SNSException, ProcessorException) as err:
+                    # log message specific error, abort if unknown error
+                    logger.error("%s %s",
+                                 err, traceback.format_exc().splitlines())
+                else:
+                    msg.delete()
+                    # inform the queue that this message has been processed
