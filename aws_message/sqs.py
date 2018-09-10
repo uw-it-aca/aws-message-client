@@ -1,12 +1,6 @@
-try:
-    from importlib import import_module
-except ImportError:
-    from django.utils.importlib import import_module
+from importlib import import_module
 from hashlib import sha1
-try:
-    from httplib import HTTPSConnection
-except ModuleNotFoundError:
-    from http.client import HTTPSConnection
+from http.client import HTTPSConnection
 import socket
 import ssl
 import os
