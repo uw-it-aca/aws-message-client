@@ -1,12 +1,3 @@
-from importlib import import_module
-from hashlib import sha1
-from http.client import HTTPSConnection
-import socket
-import ssl
-import os
-import sys
-import inspect
-import glob
 import boto3
 import re
 from aws_message.mock_sqs import SQSQueueMock
