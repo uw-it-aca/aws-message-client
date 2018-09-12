@@ -20,7 +20,7 @@ setup(
     packages=['aws_message'],
     include_package_data=True,
     install_requires = [
-        'Django>=1.10,<1.11',
+        'Django>2.1,<3.0',
         'boto3',
         'pycrypto',
         'oscrypto',
@@ -40,7 +40,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
     ],
 )
