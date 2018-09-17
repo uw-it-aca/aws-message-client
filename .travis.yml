@@ -9,7 +9,7 @@ before_script:
 - pip install python-coveralls
 - cp travis-ci/manage.py manage.py
 script:
-- pycodestyle --exclude=aws_message/tests aws_message
+- pycodestyle aws_message/
 - python -m compileall aws_message/
 - coverage run --source=aws_message/ manage.py test aws_message
 after_success:
