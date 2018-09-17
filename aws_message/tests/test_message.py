@@ -3,21 +3,28 @@ from django.conf import settings
 from django.test import TestCase
 from aws_message.message import extract_inner_message, validate_message_body
 
-
 logger = logging.getLogger(__name__)
 
-
 mbody = {
- u'SignatureVersion': u'1',
- u'Timestamp': u'2018-08-22T04:00:56.843Z',
- u'Signature': u'...',
- u'SigningCertURL': u'https://sss.qq-qqqq-1.aaaaaaaaa.com/SimpleNotificationService-00000000000000000000000000000000.pem',
- u'MessageId': u'11111111-0000-1111-2222-555555555555',
- u'Message': u'{"EventID":"00000000-1111-2222-3333-444444444444","Href":"...", "EventDate":"2018-08-21T21:00:56.832068-07:00","Previous":{"CurrentEnrollment":19,"Status":"open"},"Current":{"CurrentEnrollment":20,"Status":"closed"}}',
- u'UnsubscribeURL': u'https://sss.qq-qqqq-1.aaaaaaaaa.com/?Action=Unsubscribe&SubscriptionArn=arn:aaa:sss:qq-qqqq-1:...:...:...',
- u'Type': u'Notification',
- u'TopicArn': u'arn:aaa:sas:qq-qqqq-1:...:...:...',
- u'Subject': u'UW Event'}
+    u'SignatureVersion': u'1',
+    u'Timestamp': u'2018-08-22T04:00:56.843Z',
+    u'Signature': u'...',
+    u'SigningCertURL': (
+        u'https://sss.qq-qqqq-1.aaaaaaaaa.com/SimpleNotificationService-'
+        u'00000000000000000000000000000000.pem'),
+    u'MessageId': u'11111111-0000-1111-2222-555555555555',
+    u'Message': (
+        u'{"EventID":"00000000-1111-2222-3333-444444444444","Href":'
+        u'"...","EventDate":"2018-08-21T21:00:56.832068-07:00","Previous":'
+        u'{"CurrentEnrollment":19,"Status":"open"},"Current":'
+        u'{"CurrentEnrollment":20,"Status":"closed"}}'),
+    u'UnsubscribeURL': (
+        u'https://sss.qq-qqqq-1.aaaaaaaaa.com/?Action=Unsubscribe&'
+        u'SubscriptionArn=arn:aaa:sss:qq-qqqq-1:...:...:...'),
+    u'Type': u'Notification',
+    u'TopicArn': u'arn:aaa:sas:qq-qqqq-1:...:...:...',
+    u'Subject': u'UW Event',
+}
 
 
 class TestMockProcessor(TestCase):
@@ -39,5 +46,4 @@ class TestMockProcessor(TestCase):
                 # line 44: Signature(sig_conf).validate(_signText(mbody)
                 pass
             except Exception as ex:
-                # python 2.7: "Cannot get certificate"
                 pass
