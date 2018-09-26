@@ -14,7 +14,7 @@ Installation
 Install django-aws-message in your project.
 
     $ cd [project]
-    $ pip install -e git+https://github.com/uw-it-aca/django-aws-message/#egg=django_aws_message
+    $ pip install django-aws-message
 
 Project settings.py
 ------------------
@@ -24,12 +24,14 @@ Project settings.py
      # AWS SQS gather app
      AWS_SQS = {
          'ENROLLMENT' : {
-             'TOPIC_ARN' : 'arn:aws:sns:...',
+             'TOPIC_ARN' : 'arn:aws:sqs:...',
              'QUEUE': 'some:specific:queue:id',
+             'REGION': '<queue's amazon region label>',
+             'ACCOUNT_NUMBER': '<queue's amazon account number>',
              'KEY_ID': '<lograndomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
              'VISIBILITY_TIMEOUT': 60,
-             'MESSAGE_GATHER_SIZE': 12,
+             'MESSAGE_GATHER_SIZE': 10,
              'VALIDATE_SNS_SIGNATURE': True,
              'VALIDATE_MSG_SIGNATURE': True,
              'PAYLOAD_SETTINGS': {}
