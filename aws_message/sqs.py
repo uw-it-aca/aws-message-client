@@ -14,7 +14,7 @@ class SQSQueue(object):
 
         self.queue_name = self._settings.get('QUEUE')
         self.queue_url_pattern = re.compile(
-            r"^https://queue.amazonaws.com/%s/%s$" %
+            r"^https://.*\.amazonaws\.com/%s/%s$" %
             (self._settings.get('ACCOUNT_NUMBER'), self.queue_name))
 
         try:
