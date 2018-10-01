@@ -52,15 +52,21 @@ class Gather(object):
             for msg in messages:
                 try:
                     mbody = json.loads(msg.body)
-
-                    if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
+                    # common SNS message processing
+                    if ('Signature' in mbody and
+                            'SignatureVersion' in mbody and
+                            'SigningCertURL' in mbody and
+                            self._settings.get(
+                                'VALIDATE_SNS_SIGNATURE', True)):
                         validate_message_body(mbody)
 
-                    if mbody['Type'] == 'Notification':
-                        self._processor.process(extract_inner_message(mbody))
-
-                    elif mbody['Type'] == 'SubscriptionConfirmation':
-                        logger.info('SubscribeURL: %s', mbody['SubscribeURL'])
+                    if ('Type' in mbody and
+                            mbody['Type'] == 'SubscriptionConfirmation'):
+                        logger.info(
+                            'SubscribeURL: %s', mbody['SubscribeURL'])
+                    else:
+                        self._processor.process(
+                            extract_inner_message(mbody))
 
                 except (SNSException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
