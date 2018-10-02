@@ -19,6 +19,9 @@ b64encoded = re.compile(r'^[a-zA-Z0-9]+[=]{0,2}$')
 def extract_inner_message(mbody):
     message = mbody.get('Message')
 
+    if isinstance(message, dict):
+        return message
+
     if b64encoded.match(message):
         message = b64decode(message)
 
