@@ -4,7 +4,6 @@ from Crypto.Cipher import AES
 from hashlib import sha1
 from oscrypto import asymmetric as oscrypto_asymmetric
 from oscrypto import errors as oscrypto_errors
-import string
 import urllib3
 import logging
 
@@ -39,9 +38,9 @@ class Signature(object):
         else:
             raise CryptoException('Missing certificate configuration')
 
-        if string.lower(cert['type']) == 'url':
+        if cert['type'].lower() == 'url':
             cert_ref = cert['reference']
-            key = sha1(cert_ref).hexdigest()
+            key = sha1(cert_ref.encode('utf-8')).hexdigest()
             self._cert = cache.get(key)
             if self._cert is None:
                 try:
