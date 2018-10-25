@@ -23,9 +23,9 @@ Project settings.py
 
      # AWS SQS gather app
      AWS_SQS = {
-         'ENROLLMENT' : {
+         '[settings_name]' : {
              'TOPIC_ARN' : 'arn:aws:sqs:...',
-             'KEY_ID': '<lograndomlookingstring>',
+             'KEY_ID': '<longrandomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
              'VISIBILITY_TIMEOUT': 60,
              'MESSAGE_GATHER_SIZE': 10,
