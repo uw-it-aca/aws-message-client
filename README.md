@@ -24,16 +24,12 @@ Project settings.py
      AWS_SQS = {
          '[settings_name]': {
              'TOPIC_ARN': 'arn:aws:sqs:...',
-             'QUEUE': 'some:specific:queue:id',
-             'REGION': '<queue's amazon region label>',
-             'ACCOUNT_NUMBER': '<queue's amazon account number>',
              'KEY_ID': '<longrandomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
              'WAIT_TIME': 10,
              'VISIBILITY_TIMEOUT': 10,
              'MESSAGE_GATHER_SIZE': 10,
              'VALIDATE_SNS_SIGNATURE': True,
-             'EVENT_COUNT_PRUNE_AFTER_DAY': 2,
              'PAYLOAD_SETTINGS': {
                  'VALIDATE_MSG_SIGNATURE': False,
                  'KEYS': {
