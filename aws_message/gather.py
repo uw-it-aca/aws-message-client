@@ -63,7 +63,8 @@ class Gather(object):
                     if ('Type' in mbody and
                             mbody['Type'] == 'SubscriptionConfirmation'):
                         logger.info(
-                            'SubscribeURL: %s', mbody['SubscribeURL'])
+                            'SubscribeURL: {}'.format(
+                                mbody['SubscribeURL']))
                     else:
                         self._processor.process(
                             extract_inner_message(mbody))
