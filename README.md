@@ -23,8 +23,8 @@ Project settings.py
 
      # AWS SQS gather app
      AWS_SQS = {
-         '[settings_name]' : {
-             'TOPIC_ARN' : 'arn:aws:sqs:...',
+         '[settings_name]': {
+             'TOPIC_ARN': 'arn:aws:sqs:...',
              'KEY_ID': '<longrandomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
              'VISIBILITY_TIMEOUT': 60,
