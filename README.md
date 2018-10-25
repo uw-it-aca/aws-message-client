@@ -21,16 +21,21 @@ Project settings.py
 
 **AWS App settings**
 
-     # AWS SQS gather app
      AWS_SQS = {
          '[settings_name]': {
              'TOPIC_ARN': 'arn:aws:sqs:...',
              'KEY_ID': '<longrandomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
-             'VISIBILITY_TIMEOUT': 60,
+             'WAIT_TIME': 10,
+             'VISIBILITY_TIMEOUT': 10,
              'MESSAGE_GATHER_SIZE': 10,
              'VALIDATE_SNS_SIGNATURE': True,
-             'VALIDATE_MSG_SIGNATURE': True,
-             'PAYLOAD_SETTINGS': {}
-         }
+             'PAYLOAD_SETTINGS': {
+                 'VALIDATE_MSG_SIGNATURE': False,
+                 'KEYS': {
+                     [payload_key]: [payload_secret],
+                 },
+             },
+         },
+         ...
      }

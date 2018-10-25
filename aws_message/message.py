@@ -28,7 +28,7 @@ def extract_inner_message(mbody):
     return json.loads(message)
 
 
-def validate_message_body(mbody):
+def validate_message_signature(mbody):
     """
     raises CryptoException, SNSException
     """
@@ -47,7 +47,7 @@ def validate_message_body(mbody):
         Signature(sig_conf).validate(_signText(mbody),
                                      b64decode(mbody['Signature']))
     except Exception as err:
-        raise SNSException('validate_message_body: %s (%s)' % (err, mbody))
+        raise SNSException('validate_message_body: {} ({})'.format(err, mbody))
 
 
 def _signText(mbody):
@@ -74,7 +74,7 @@ def _signText(mbody):
 
 
 def _sigElement(el, mbody):
-    return '%s\n%s\n' % (el, mbody[el])
+    return '{}\n{}\n'.format(el, mbody[el])
 
 
 def subscribe(mbody):
@@ -86,8 +86,8 @@ def subscribe(mbody):
         r = http.request('GET', mbody['SubscribeURL'])
         if r.status != 200:
             raise SNSException(
-                'Subscribe to %s failure: status: %s' % (
+                'Subscribe to {} failure: status: {}'.format(
                     mbody['TopicArn'], r.status))
     except urllib3.exceptions.HTTPError as err:
-        raise SNSException('Subscribe to %s failure: %s' % (
+        raise SNSException('Subscribe to {} failure: {}'.format(
             mbody['TopicArn'], err))
