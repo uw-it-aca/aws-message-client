@@ -2,8 +2,8 @@ import json
 from logging import getLogger
 import traceback
 from django.conf import settings
-from aws_message.message import SNSException, extract_inner_message,\
-    validate_message_body
+from aws_message.message import (
+    SNSException, extract_inner_message, validate_message_signature)
 from aws_message.processor import ProcessorException
 from aws_message.sqs import SQSQueue
 
@@ -33,8 +33,8 @@ class Gather(object):
             raise GatherException('missing event processor')
 
         self._processor = processor
-        self._settings = sqs_settings if sqs_settings \
-            else self._processor.get_queue_setting()
+        self._settings = sqs_settings if (
+            sqs_settings) else self._processor.get_queue_settings()
 
         self._queue = SQSQueue(self._settings)
         # if Exception, abort!
@@ -54,18 +54,19 @@ class Gather(object):
                     mbody = json.loads(msg.body)
 
                     if self._settings.get('VALIDATE_SNS_SIGNATURE', True):
-                        validate_message_body(mbody)
+                        validate_message_signature(mbody)
 
                     if mbody['Type'] == 'Notification':
                         self._processor.process(extract_inner_message(mbody))
 
                     elif mbody['Type'] == 'SubscriptionConfirmation':
-                        logger.info('SubscribeURL: %s', mbody['SubscribeURL'])
+                        logger.info('SubscribeURL: {}'.format(
+                            mbody['SubscribeURL']))
 
                 except (SNSException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
-                    logger.error("%s %s",
-                                 err, traceback.format_exc().splitlines())
+                    logger.error('{}: {}'.format(
+                        err, traceback.format_exc().splitlines()))
                 else:
                     msg.delete()
                     # inform the queue that this message has been processed

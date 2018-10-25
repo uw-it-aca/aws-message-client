@@ -21,19 +21,25 @@ Project settings.py
 
 **AWS App settings**
 
-     # AWS SQS gather app
      AWS_SQS = {
-         'ENROLLMENT' : {
-             'TOPIC_ARN' : 'arn:aws:sqs:...',
+         '[settings_name]': {
+             'TOPIC_ARN': 'arn:aws:sqs:...',
              'QUEUE': 'some:specific:queue:id',
              'REGION': '<queue's amazon region label>',
              'ACCOUNT_NUMBER': '<queue's amazon account number>',
-             'KEY_ID': '<lograndomlookingstring>',
+             'KEY_ID': '<longrandomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
-             'VISIBILITY_TIMEOUT': 60,
+             'WAIT_TIME': 10,
+             'VISIBILITY_TIMEOUT': 10,
              'MESSAGE_GATHER_SIZE': 10,
              'VALIDATE_SNS_SIGNATURE': True,
-             'VALIDATE_MSG_SIGNATURE': True,
-             'PAYLOAD_SETTINGS': {}
-         }
+             'EVENT_COUNT_PRUNE_AFTER_DAY': 2,
+             'PAYLOAD_SETTINGS': {
+                 'VALIDATE_MSG_SIGNATURE': False,
+                 'KEYS': {
+                     [payload_key]: [payload_secret],
+                 },
+             },
+         },
+         ...
      }
