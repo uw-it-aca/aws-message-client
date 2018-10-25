@@ -25,9 +25,6 @@ Project settings.py
      AWS_SQS = {
          'ENROLLMENT' : {
              'TOPIC_ARN' : 'arn:aws:sqs:...',
-             'QUEUE': 'some:specific:queue:id',
-             'REGION': '<queue's amazon region label>',
-             'ACCOUNT_NUMBER': '<queue's amazon account number>',
              'KEY_ID': '<lograndomlookingstring>',
              'KEY': '<longerrandomlookingstring>',
              'VISIBILITY_TIMEOUT': 60,

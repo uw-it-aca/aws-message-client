@@ -3,9 +3,7 @@ from aws_message.sqs import SQSQueue
 
 
 SETTINGS = {
-    'ACCOUNT_NUMBER': '123456789012',
-    'QUEUE': 'ww-wwww-1',
-    'REGION': 'xx-xxxx-1',
+    'TOPIC_ARN': 'arn:aws:sqs:mock:123456789012:ww-wwww-1',
     'KEY_ID': 'XXXXXXXXXXXXXXXX',
     'KEY': 'YYYYYYYYYYYYYYYYYYYYYYYY',
     'VISIBILITY_TIMEOUT': 10,
