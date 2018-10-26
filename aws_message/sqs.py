@@ -15,28 +15,36 @@ class SQSQueue(object):
     def __init__(self, sqs_settings):
         try:
             self._settings = sqs_settings
-            self.arn = self._settings.get('TOPIC_ARN')
             self.key_id = self._settings['KEY_ID']
             self.key = self._settings['KEY']
         except KeyError:
-            raise SQSException('Invalid SQS configuration {}'.format(
+            raise SQSException('Miss KEY and KEY_ID in {}'.format(
                 self._settings))
 
-        # dig region, account and queue_name out of ARN
-        #     arn:aws:sqs:<region>:<account-id>:<queuename>
-        # defined at:
-        #     https://docs.aws.amazon.com/general/latest/
-        #         gr/aws-arns-and-namespaces.html
-        m = re.match(r'^arn:aws:sqs:'
-                     r'(?P<region>([a-z]{2}-[a-z]+-\d+|mock)):'
-                     r'(?P<account_id>\d+):'
-                     r'(?P<queue_name>[a-z\d\-\_\.]*)$', self.arn, re.I)
-        if not m:
-            raise SQSException('Invalid ARN: {}'.format(self.arn))
-
-        self.region = m.group('region')
-        self.account_id = m.group('account_id')
-        self.queue_name = m.group('queue_name')
+        if self._settings.get('TOPIC_ARN'):
+            m = re.match(r'^arn:aws:sqs:'
+                         r'(?P<region>([a-z]{2}-[a-z]+-\d+|mock)):'
+                         r'(?P<account_id>\d+):'
+                         r'(?P<queue_name>[a-z\d\-\_\.]*)$', self.arn, re.I)
+            # For older version, parse make ARN using
+            # format: "arn:aws:sqs:<region>:<account-id>:<queuename>"
+            # defined at:
+            #     https://docs.aws.amazon.com/general/latest/
+            #         gr/aws-arns-and-namespaces.html
+            self.has_arn = Ture
+            self.region = m.group('region')
+            self.account_id = m.group('account_id')
+            self.queue_name = m.group('queue_name')
+        else:
+            self.has_arn = False
+            try:
+                self.account_id = self._settings['ACCOUNT_NUMBER']
+                self.queue_name = self._settings.get('QUEUE')
+                self.region = self._settings.get('REGION')
+            except KeyError:
+                raise SQSException(
+                    'Miss ACCOUNT_NUMBER/QUEUE/REGION in {}'.format(
+                        self._settings))
 
         if self.region == 'mock':
             self._queue = SQSQueueMock()
@@ -57,10 +65,18 @@ class SQSQueue(object):
             raise SQSException('No queue by name {}'.format(
                 self.queue_name))
 
-        if not re.match(r"^https://{}\.[^/]+/{}/{}$".format(
-                self.region, self.account_id, self.queue_name),
-                        self._queue.url):
-            raise SQSException('Invalid queue url {}'.format(self._queue.url))
+        if self.has_arn:
+            if not re.match(r"^https://{}\.[^/]+/{}/{}$".format(
+                    self.region, self.account_id, self.queue_name),
+                            self._queue.url):
+                raise SQSException('Invalid queue url {}'.format(
+                    self._queue.url))
+        else:
+            if not re.match(r"^https://queue.amazonaws.com/{}/{}$".format(
+                    self.account_id, self.queue_name),
+                            self._queue.url):
+                raise SQSException('Invalid queue url {}'.format(
+                    self._queue.url))
 
     def get_messages(self, max_msgs_to_fetch):
         return self._queue.receive_messages(
