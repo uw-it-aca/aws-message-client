@@ -33,7 +33,7 @@ class TestSQSQueue(TestCase):
 
 
 @new_version
-class TestSQSQueue(TestCase):
+class TestSQSQueue1(TestCase):
 
     def test_get_queue(self):
         pass
