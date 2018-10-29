@@ -57,11 +57,6 @@ class SQSQueue(object):
             raise SQSException('No queue by name {}'.format(
                 self.queue_name))
 
-        if not re.match(r"^https://{}\.[^/]+/{}/{}$".format(
-                self.region, self.account_id, self.queue_name),
-                        self._queue.url):
-            raise SQSException('Invalid queue url {}'.format(self._queue.url))
-
     def get_messages(self, max_msgs_to_fetch):
         return self._queue.receive_messages(
             AttributeNames=['All'],
