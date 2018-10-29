@@ -16,8 +16,9 @@ class InnerMessageProcessor(ABC):
     def validate_inner_message(self, message):
         """
         Override in the sub-class if the inner message requires validation.
+        Must return True or False.
         """
-        pass
+        return True
 
     def validate_inner_message_signature(self, message):
         """
@@ -42,15 +43,16 @@ class InnerMessageProcessor(ABC):
         """
         :param message: the inner message json data
         """
-        self.validate_inner_message(message)
+        if self.validate_inner_message(message):
 
-        if self.get_payload_settings().get('VALIDATE_MSG_SIGNATURE', False):
-            self.validate_inner_message_signature(message)
+            if self.get_payload_settings().get(
+                    'VALIDATE_MSG_SIGNATURE', False):
+                self.validate_inner_message_signature(message)
 
-        if self.is_encrypted:
-            message = self.decrypt_inner_message(message)
+            if self.is_encrypted:
+                message = self.decrypt_inner_message(message)
 
-        self.process_inner_message(message)
+            self.process_inner_message(message)
 
     @abstractmethod
     def process_inner_message(self, json_data):
