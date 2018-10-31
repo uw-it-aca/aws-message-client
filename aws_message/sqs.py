@@ -15,7 +15,7 @@ class SQSQueue(object):
     def __init__(self, sqs_settings):
         try:
             self._settings = sqs_settings
-            self.arn = self._settings.get('TOPIC_ARN')
+            self.arn = self._settings.get('QUEUE_ARN')
             self.key_id = self._settings['KEY_ID']
             self.key = self._settings['KEY']
         except KeyError:
