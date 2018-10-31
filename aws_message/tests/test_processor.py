@@ -10,10 +10,19 @@ class MockProcessor(InnerMessageProcessor):
         super(MockProcessor, self).__init__(
             logger, queue_settings_name='TEST', is_encrypted=is_encrypted)
 
-    def process_inner_message(self, json_data):
+        self.event_date = None
+        self.href = None
+        self.current = None
+
+    def process_message_body(self, json_data):
         self.event_date = json_data['EventDate']
         self.href = json_data['Href']
         self.current = json_data['Current']
+
+
+class MockInvalidProcessor(MockProcessor):
+    def validate_message_body(self, message):
+        return False
 
 
 class UnimplementedProcessor(InnerMessageProcessor):
@@ -47,12 +56,20 @@ class TestMockProcessor(TestCase):
     @override_settings(AWS_SQS={'TEST': {}})
     def test_process(self):
         processor = MockProcessor()
-        processor.process(M1)
+        valid = processor.process(M1)
         self.assertEqual(
             processor.event_date, "2018-08-12T16:39:08.2704415-07:00")
         self.assertEqual(
             processor.href, "...")
         self.assertIsNotNone(processor.current)
+
+    @override_settings(AWS_SQS={'TEST': {}})
+    def test_process_with_validation(self):
+        processor = MockInvalidProcessor(is_encrypted=True)
+        valid = processor.process(M1)
+        self.assertIsNone(processor.event_date)
+        self.assertIsNone(processor.href)
+        self.assertIsNone(processor.current)
 
     @override_settings(AWS_SQS={'TEST': {}})
     def test_process_encrypted(self):
@@ -64,8 +81,7 @@ class TestMockProcessor(TestCase):
             processor.href, "...")
         self.assertIsNotNone(processor.current)
 
-    @override_settings(AWS_SQS={'TEST': {
-        'PAYLOAD_SETTINGS': {'VALIDATE_MSG_SIGNATURE': True}}})
+    @override_settings(AWS_SQS={'TEST': {'VALIDATE_MSG_SIGNATURE': True}})
     def test_process_with_signature_validation(self):
         processor = MockProcessor()
         processor.process(M1)

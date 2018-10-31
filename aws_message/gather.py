@@ -2,10 +2,10 @@ import json
 from logging import getLogger
 import traceback
 from django.conf import settings
-from aws_message.message import (
-    SNSException, extract_inner_message, validate_message_signature)
+from aws_message.crypto import CryptoException
 from aws_message.processor import ProcessorException
 from aws_message.sqs import SQSQueue
+from aws_message.message import Message
 
 
 logger = getLogger(__name__)
@@ -51,29 +51,16 @@ class Gather(object):
 
             for msg in messages:
                 try:
-                    mbody = json.loads(msg.body)
+                    # validate the message and hand it off for processing
+                    message = Message(json.loads(msg.body), self._settings)
+                    if message.validate():
+                        self._processor.process(message.extract())
 
-                    # common SNS message processing
-                    if ('Signature' in mbody and
-                            'SignatureVersion' in mbody and
-                            'SigningCertURL' in mbody and
-                            self._settings.get(
-                                'VALIDATE_SNS_SIGNATURE', True)):
-                        validate_message_signature(mbody)
-
-                    if ('Type' in mbody and
-                            mbody['Type'] == 'SubscriptionConfirmation'):
-                        logger.info(
-                            'SubscribeURL: {}'.format(
-                                mbody['SubscribeURL']))
-                    else:
-                        self._processor.process(
-                            extract_inner_message(mbody))
-
-                except (SNSException, ProcessorException) as err:
+                except (CryptoException, ProcessorException) as err:
                     # log message specific error, abort if unknown error
                     logger.error('{}: {}'.format(
                         err, traceback.format_exc().splitlines()))
+
                 else:
-                    msg.delete()
                     # inform the queue that this message has been processed
+                    msg.delete()
