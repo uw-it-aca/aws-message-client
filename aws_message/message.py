@@ -1,93 +1,91 @@
-"""
-Validate and decode AWS SNS/SQS message
-"""
-from django.conf import settings
-import urllib3
+from aws_message.crypto import Signature, CryptoException
+from base64 import b64decode
 import json
 import re
-from base64 import b64decode
-from aws_message.crypto import Signature, CryptoException
+
+re_base64 = re.compile(
+    r'^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|'
+    r'[A-Za-z0-9+/]{3}=)?$')
 
 
-class SNSException(Exception):
-    pass
+class Message(object):
+    def __init__(self, message, settings):
+        self._message = message
+        self._settings = settings
+        self._is_sns = (isinstance(message, dict) and 'TopicArn' in message)
 
+    def validate(self):
+        valid = True
+        if self._is_sns:
+            # SNS message validation
+            valid = self._validate_topic_arn()
 
-b64encoded = re.compile(r'^[a-zA-Z0-9]+[=]{0,2}$')
+            if valid and self._settings.get('VALIDATE_SNS_SIGNATURE', True):
+                self._validate_sns_signature()
 
+        return valid
 
-def extract_inner_message(mbody):
-    message = mbody.get('Message')
+    def extract(self):
+        message = self._message
+        if self._is_sns:
+            message = message.get('Message')
 
-    if isinstance(message, dict):
-        return message
+        if not isinstance(message, str):
+            return message
 
-    if b64encoded.match(message):
-        message = b64decode(message)
+        if re_base64.match(message):
+            message = b64decode(message)
 
-    return json.loads(message)
+        try:
+            return json.loads(message)
+        except json.decoder.JSONDecodeError:
+            return message
 
+    def _validate_topic_arn(self):
+        if (self._settings.get('TOPIC_ARN') and
+                self._message['TopicArn'] != self._settings['TOPIC_ARN']):
+            return False
+        return True
 
-def validate_message_signature(mbody):
-    """
-    raises CryptoException, SNSException
-    """
-    t = mbody['SignatureVersion']
-    if t != '1':
-        raise SNSException('Unknown SNS Signature Version: ' + t)
+    def _validate_sns_signature(self):
+        if self._message['SignatureVersion'] != '1':
+            raise CryptoException('Unknown SNS Signature Version: {}'.format(
+                self._message['SignatureVersion']))
 
-    sig_conf = {
-        'cert': {
-            'type': 'url',
-            'reference': mbody['SigningCertURL']
+        sig_conf = {
+            'cert': {
+                'type': 'url',
+                'reference': self._message['SigningCertURL']
+            }
         }
-    }
 
-    try:
-        Signature(sig_conf).validate(_signText(mbody),
-                                     b64decode(mbody['Signature']))
-    except Exception as err:
-        raise SNSException('validate_message_body: {} ({})'.format(err, mbody))
+        Signature(sig_conf).validate(_sign_text(self._message),
+                                     b64decode(self._message['Signature']))
 
+    def _sign_text(message):
+        """
+        Reference:
+        https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.verify.signature.html
+        """
+        to_sign = ''
 
-def _signText(mbody):
-    to_sign = ''
-    # see: ("http://docs.amazonwebservices.com/sns/latest/"
-    #       "gsg/SendMessageToHttp.verify.signature.html")
+        def sig_pair(el, message):
+            return '{}\n{}\n'.format(el, message[el])
 
-    to_sign = _sigElement('Message', mbody) + _sigElement('MessageId', mbody)
+        to_sign = sig_pair('Message', message)
+        to_sign += sig_pair('MessageId', message)
 
-    if mbody['Type'] == 'Notification':
-        if 'Subject' in mbody:
-            to_sign += _sigElement('Subject', mbody)
-        to_sign += _sigElement('Timestamp', mbody)
+        if message['Type'] == 'Notification':
+            if 'Subject' in message:
+                to_sign += sig_pair('Subject', message)
+            to_sign += sig_pair('Timestamp', message)
 
-    elif mbody['Type'] == 'SubscriptionConfirmation':
-        to_sign += _sigElement('SubscribeURL', mbody)
-        to_sign += _sigElement('Timestamp', mbody)
-        to_sign += _sigElement('Token', mbody)
+        elif message['Type'] == 'SubscriptionConfirmation':
+            to_sign += sig_pair('SubscribeURL', message)
+            to_sign += sig_pair('Timestamp', message)
+            to_sign += sig_pair('Token', message)
 
-    to_sign += _sigElement('TopicArn', mbody)
-    to_sign += _sigElement('Type', mbody)
+        to_sign += sig_pair('TopicArn', message)
+        to_sign += sig_pair('Type', message)
 
-    return to_sign.encode('utf-8')
-
-
-def _sigElement(el, mbody):
-    return '{}\n{}\n'.format(el, mbody[el])
-
-
-def subscribe(mbody):
-    try:
-        http = urllib3.PoolManager(
-            cert_reqs='CERT_REQUIRED',
-            ca_certs=settings.AWS_CA_BUNDLE
-        )
-        r = http.request('GET', mbody['SubscribeURL'])
-        if r.status != 200:
-            raise SNSException(
-                'Subscribe to {} failure: status: {}'.format(
-                    mbody['TopicArn'], r.status))
-    except urllib3.exceptions.HTTPError as err:
-        raise SNSException('Subscribe to {} failure: {}'.format(
-            mbody['TopicArn'], err))
+        return to_sign.encode('utf-8')
