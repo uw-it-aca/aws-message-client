@@ -13,45 +13,46 @@ class InnerMessageProcessor(ABC):
         self.settings = settings.AWS_SQS.get(queue_settings_name, {})
         self.is_encrypted = is_encrypted
 
-    def validate_message_body(self, message):
+    def validate_message_body(self, payload):
         """
-        Override in the sub-class if the inner message requires validation.
+        Override in the sub-class if the message payload requires validation.
         Must return True or False.
         """
         return True
 
-    def validate_message_body_signature(self, message):
+    def validate_message_body_signature(self, payload):
         """
-        Override in the sub-class if the inner message signature requires
+        Override in the sub-class if the message payload signature requires
         validation.
         """
         pass
 
-    def decrypt_message_body(self, message):
+    def decrypt_message_body(self, payload):
         """
-        Override in the sub-class if the inner message is encrypted
+        Override in the sub-class if the message payload is encrypted
         """
-        return message
+        return payload
 
     def get_queue_settings(self):
         return self.settings
 
-    def process(self, message):
+    def process(self, payload):
         """
-        :param message: the inner message json data
+        :param payload: the message payload json data
         """
-        if self.validate_message_body(message):
+        if self.validate_message_body(payload):
 
             if self.settings.get('VALIDATE_BODY_SIGNATURE', False):
-                self.validate_message_body_signature(message)
+                self.validate_message_body_signature(payload)
 
             if self.is_encrypted:
-                message = self.decrypt_message_body(message)
+                # the payload is encrypted
+                payload = self.decrypt_message_body(payload)
 
-            self.process_message_body(message)
+            self.process_message_body(payload)
 
     @abstractmethod
-    def process_message_body(self, json_data):
+    def process_message_body(self, payload):
         """
         A sub-class must define this method
         :raises ProcessorException: any error unable to handle
