@@ -1,11 +1,11 @@
 import logging
 from django.test import TestCase, override_settings
-from aws_message.processor import InnerMessageProcessor, ProcessorException
+from aws_message.processor import MessageBodyProcessor, ProcessorException
 
 logger = logging.getLogger(__name__)
 
 
-class MockProcessor(InnerMessageProcessor):
+class MockProcessor(MessageBodyProcessor):
     def __init__(self, is_encrypted=False):
         super(MockProcessor, self).__init__(
             logger, queue_settings_name='TEST', is_encrypted=is_encrypted)
@@ -25,7 +25,7 @@ class MockInvalidProcessor(MockProcessor):
         return False
 
 
-class UnimplementedProcessor(InnerMessageProcessor):
+class UnimplementedProcessor(MessageBodyProcessor):
     pass
 
 
