@@ -59,9 +59,10 @@ class Message(object):
             }
         }
 
-        Signature(sig_conf).validate(_sign_text(self._message),
+        Signature(sig_conf).validate(self._sign_text(self._message),
                                      b64decode(self._message['Signature']))
 
+    @staticmethod
     def _sign_text(message):
         """
         Reference:
