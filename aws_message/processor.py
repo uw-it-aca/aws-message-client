@@ -47,7 +47,7 @@ class InnerMessageProcessor(ABC):
 
             if self.is_encrypted:
                 # the payload is encrypted
-                payload = self.decrypt_payload_body(payload)
+                payload = self.decrypt_message_body(payload)
 
             self.process_message_body(payload)
 
