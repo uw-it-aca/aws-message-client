@@ -7,7 +7,7 @@ class ProcessorException(Exception):
     pass
 
 
-class InnerMessageProcessor(ABC):
+class MessageBodyProcessor(ABC):
     def __init__(self, logger, queue_settings_name, is_encrypted=False):
         self.logger = logger
         self.settings = settings.AWS_SQS.get(queue_settings_name, {})

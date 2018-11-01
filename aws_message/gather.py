@@ -26,7 +26,7 @@ class Gather(object):
                  exception=None,
                  sqs_settings=None):
         """
-        :param processor: A sub-class object of InnerMessageProcessor
+        :param processor: A sub-class object of MessageBodyProcessor
         """
 
         if not processor:
