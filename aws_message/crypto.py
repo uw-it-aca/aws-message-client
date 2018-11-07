@@ -45,6 +45,8 @@ class Signature(object):
             if self._cert is None:
                 try:
                     http = urllib3.PoolManager(
+                        cert_file=config.get('cert_file'),
+                        key_file=config.get('key_file'),
                         cert_reqs='CERT_REQUIRED',
                         ca_certs=settings.AWS_CA_BUNDLE
                     )
