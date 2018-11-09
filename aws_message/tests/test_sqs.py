@@ -7,6 +7,11 @@ class MockQueue(object):
         return [''] * kwargs.get('MaxNumberOfMessages')
 
 
+class MockEmptyQueue(MockQueue):
+    def receive_messages(self, **kwargs):
+        return []
+
+
 class TestSQSQueue(TestCase):
     def setUp(self):
         self._mock_settings = {
@@ -45,6 +50,11 @@ class TestSQSQueue(TestCase):
         self.sqs._settings['POLL_COUNT'] = 1
         messages = self.sqs.get_messages()
         self.assertEquals(len(messages), 9)
+
+    def test_empty_queue(self):
+        self.sqs._queue = MockEmptyQueue()
+        messages = self.sqs.get_messages()
+        self.assertEquals(len(messages), 0)
 
 
 class TestSQSQueueErrors(TestCase):

@@ -74,13 +74,3 @@ class SQSQueue(object):
                 break
 
         return ret_messages
-
-    def delete_message(self, msg):
-        raise SQSException('Invalid method for sqs queue')
-        # call msg.delete() would delete the message
-
-    def purge_messages(self):
-        """
-        Delete all the messages in the queue before purge is called
-        """
-        return self._queue.purge()
