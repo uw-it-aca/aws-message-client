@@ -40,27 +40,18 @@ class Gather(object):
         # if Exception, abort!
 
     def gather_events(self):
-        to_fetch = self._settings.get('MESSAGE_GATHER_SIZE')
+        for msg in self._queue.get_messages():
+            try:
+                # validate the message and hand it off for processing
+                message = Message(json.loads(msg.body), self._settings)
+                if message.validate():
+                    self._processor.process(message.extract())
 
-        while to_fetch > 0:
-            messages = self._queue.get_messages(to_fetch)
+            except (CryptoException, ProcessorException) as err:
+                # log message specific error, abort if unknown error
+                logger.error('{}: {}'.format(
+                    err, traceback.format_exc().splitlines()))
 
-            if len(messages) == 0:
-                logger.info("SQS queue is drained")
-                break
-
-            for msg in messages:
-                try:
-                    # validate the message and hand it off for processing
-                    message = Message(json.loads(msg.body), self._settings)
-                    if message.validate():
-                        self._processor.process(message.extract())
-
-                except (CryptoException, ProcessorException) as err:
-                    # log message specific error, abort if unknown error
-                    logger.error('{}: {}'.format(
-                        err, traceback.format_exc().splitlines()))
-
-                else:
-                    # inform the queue that this message has been processed
-                    msg.delete()
+            else:
+                # inform the queue that this message has been processed
+                msg.delete()
