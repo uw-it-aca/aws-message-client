@@ -1,8 +1,10 @@
+# AWS SNS/SQS Message App                                                       
+                                                                                
 [![Build Status](https://api.travis-ci.org/uw-it-aca/django-aws-message.svg?branch=master)](https://travis-ci.org/uw-it-aca/django-aws-message)
 [![Coverage Status](https://coveralls.io/repos/uw-it-aca/django-aws-message/badge.png?branch=master)](https://coveralls.io/r/uw-it-aca/django-aws-message?branch=master)
+[![PyPi Version](https://img.shields.io/pypi/v/django-aws-message.svg)](https://pypi.python.org/pypi/django-aws-message)
+![Python versions](https://img.shields.io/pypi/pyversions/django-aws-message.svg)
 
-ACA AWS SNS/SQS Message App
-===========================
 
 A Django Application on which to build AWS SNS endpoints and SQS gatherers
 
