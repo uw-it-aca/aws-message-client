@@ -6,7 +6,6 @@ See the README on `GitHub
 <https://github.com/uw-it-aca/django-aws-message>`_.
 """
 
-# The VERSION file is created by travis-ci, based on the tag name
 version_path = 'aws_message/VERSION'
 VERSION = open(os.path.join(os.path.dirname(__file__), version_path)).read()
 VERSION = VERSION.replace("\n", "")
@@ -20,7 +19,7 @@ setup(
     packages=['aws_message'],
     include_package_data=True,
     install_requires = [
-        'Django>=2.0,<3.0',
+        'Django>=2.1,<3.2',
         'boto3',
         'pycrypto',
         'oscrypto',
