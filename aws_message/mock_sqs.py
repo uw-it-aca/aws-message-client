@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from importlib import import_module
 from hashlib import sha1
 from http.client import HTTPSConnection
