@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from aws_message.crypto import Signature, CryptoException
 from base64 import b64decode
 import json
