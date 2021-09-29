@@ -54,12 +54,17 @@ jobs:
           pip install -e .
           pip install commonconf nose2 coverage coveralls==2.2.0
 
+      - name: Start Memcached
+        run: docker run -d -p 11211:11211 memcached:1.6-alpine
+
       - name: Run Python Linters
         uses: uw-it-aca/actions/python-linters@main
         with:
           app_name: ${APP_NAME}
 
       - name: Run Tests
+        env:
+          CACHE_TESTS: 1
         run: |
           python -m compileall ${APP_NAME}/
           coverage run ${APP_NAME}/test.py -v

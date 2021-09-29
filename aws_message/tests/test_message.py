@@ -106,6 +106,7 @@ class TestMessageValidate(TestCase):
     @override_settings(AWS_SQS={'TEST': {'VALIDATE_SNS_SIGNATURE': True}},
                        AWS_CA_BUNDLE='ca_certs.txt',
                        MEMCACHED_SERVERS=[("127.0.0.1", "11211")])
+    @skipUnless(os.getenv("CACHE_TESTS"), "Set CACHE_TESTS=1 to run tests")
     def test_validate_message_invalid_signature(self):
         message = Message(TEST_MSG_SNS, settings.AWS_SQS['TEST'])
         with self.assertRaises(CryptoException) as cm:
@@ -116,6 +117,7 @@ class TestMessageValidate(TestCase):
     @override_settings(AWS_SQS={'TEST': {'VALIDATE_SNS_SIGNATURE': True}},
                        AWS_CA_BUNDLE='ca_certs.txt',
                        MEMCACHED_SERVERS=[("127.0.0.1", "11211")])
+    @skipUnless(os.getenv("CACHE_TESTS"), "Set CACHE_TESTS=1 to run tests")
     def test_validate_message_signature(self):
         message = Message(TEST_MSG_SNS_B64, settings.AWS_SQS['TEST'])
         with self.assertRaises(CryptoException) as cm:
