@@ -5,16 +5,11 @@
 [![PyPi Version](https://img.shields.io/pypi/v/django-aws-message.svg)](https://pypi.python.org/pypi/django-aws-message)
 ![Python versions](https://img.shields.io/pypi/pyversions/django-aws-message.svg)
 
-A Django Application on which to build AWS SNS endpoints and SQS gatherers
+Application on which to build AWS SNS endpoints and SQS gatherers
 
 Installation
 ------------
 
-**Project directory**
-
-Install django-aws-message in your project.
-
-    $ cd [project]
     $ pip install django-aws-message
 
 Project settings.py

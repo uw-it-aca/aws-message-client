@@ -1,7 +1,7 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.test import TestCase
+from unittest import TestCase
 from aws_message.sqs import SQSQueue, SQSException
 
 
