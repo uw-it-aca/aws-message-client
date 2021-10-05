@@ -1,12 +1,12 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.conf import settings
-from django.core.cache import cache
+from commonconf import settings
 from Crypto.Cipher import AES
 from hashlib import sha1
 from oscrypto import asymmetric as oscrypto_asymmetric
 from oscrypto import errors as oscrypto_errors
+from memcached_clients import PymemcacheClient
 import urllib3
 import logging
 
@@ -42,6 +42,7 @@ class Signature(object):
             raise CryptoException('Missing certificate configuration')
 
         if cert['type'].lower() == 'url':
+            cache = PymemcacheClient()
             cert_ref = cert['reference']
             key = sha1(cert_ref.encode('utf-8')).hexdigest()
             self._cert = cache.get(key)

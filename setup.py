@@ -19,11 +19,12 @@ setup(
     packages=['aws_message'],
     include_package_data=True,
     install_requires = [
-        'Django>=2.1,<3.2',
         'boto3',
         'pycrypto',
         'oscrypto',
-        'urllib3'
+        'urllib3',
+        'commonconf',
+        'uw-memcached-clients~=1.0',
     ],
     license='Apache License, Version 2.0',
     description=('An application on which to build AWS SQS endpoints and '
@@ -34,7 +35,6 @@ setup(
     author_email = "aca-it@uw.edu",
     classifiers=[
         'Environment :: Web Environment',
-        'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',

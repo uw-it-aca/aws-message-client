@@ -1,10 +1,11 @@
 # Copyright 2021 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.test import TestCase, override_settings
-from django.conf import settings
+from unittest import TestCase, skipUnless
+from commonconf import settings, override_settings
 from aws_message.message import Message
 from aws_message.crypto import CryptoException
+import os
 
 TEST_MESSAGES = [
     {'abc': 'def'},
@@ -103,7 +104,9 @@ class TestMessageValidate(TestCase):
         self.assertEquals(message.validate(), False)
 
     @override_settings(AWS_SQS={'TEST': {'VALIDATE_SNS_SIGNATURE': True}},
-                       AWS_CA_BUNDLE='ca_certs.txt')
+                       AWS_CA_BUNDLE='ca_certs.txt',
+                       MEMCACHED_SERVERS=[("127.0.0.1", "11211")])
+    @skipUnless(os.getenv("CACHE_TESTS"), "Set CACHE_TESTS=1 to run tests")
     def test_validate_message_invalid_signature(self):
         message = Message(TEST_MSG_SNS, settings.AWS_SQS['TEST'])
         with self.assertRaises(CryptoException) as cm:
@@ -112,7 +115,9 @@ class TestMessageValidate(TestCase):
             'Unknown SNS Signature Version: 2', str(cm.exception))
 
     @override_settings(AWS_SQS={'TEST': {'VALIDATE_SNS_SIGNATURE': True}},
-                       AWS_CA_BUNDLE='ca_certs.txt')
+                       AWS_CA_BUNDLE='ca_certs.txt',
+                       MEMCACHED_SERVERS=[("127.0.0.1", "11211")])
+    @skipUnless(os.getenv("CACHE_TESTS"), "Set CACHE_TESTS=1 to run tests")
     def test_validate_message_signature(self):
         message = Message(TEST_MSG_SNS_B64, settings.AWS_SQS['TEST'])
         with self.assertRaises(CryptoException) as cm:

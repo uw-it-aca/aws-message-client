@@ -4,6 +4,7 @@
 from importlib import import_module
 from hashlib import sha1
 from http.client import HTTPSConnection
+from commonconf import settings
 import socket
 import ssl
 import os
@@ -11,7 +12,6 @@ import sys
 import inspect
 import glob
 import re
-from django.conf import settings
 
 
 class HTTPSConnectionValidating(HTTPSConnection):

@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from django.test import TestCase, override_settings
+from unittest import TestCase
+from commonconf import settings, override_settings
 from aws_message.processor import MessageBodyProcessor, ProcessorException
 
 logger = logging.getLogger(__name__)
