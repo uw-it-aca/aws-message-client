@@ -4,7 +4,7 @@
 import json
 from logging import getLogger
 import traceback
-from django.conf import settings
+from commonconf import settings
 from aws_message.crypto import CryptoException
 from aws_message.processor import ProcessorException
 from aws_message.sqs import SQSQueue

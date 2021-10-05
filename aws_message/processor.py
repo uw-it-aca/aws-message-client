@@ -3,7 +3,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from django.conf import settings
+from commonconf import settings
 
 
 class ProcessorException(Exception):
