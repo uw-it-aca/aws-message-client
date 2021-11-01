@@ -1,16 +1,16 @@
 # AWS SNS/SQS Message App
 
-[![Build Status](https://github.com/uw-it-aca/django-aws-message/workflows/tests/badge.svg?branch=main)](https://github.com/uw-it-aca/django-aws-message/actions)
-[![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/django-aws-message/badge.svg?branch=main)](https://coveralls.io/github/uw-it-aca/django-aws-message?branch=main)
-[![PyPi Version](https://img.shields.io/pypi/v/django-aws-message.svg)](https://pypi.python.org/pypi/django-aws-message)
-![Python versions](https://img.shields.io/pypi/pyversions/django-aws-message.svg)
+[![Build Status](https://github.com/uw-it-aca/aws-message-client/workflows/tests/badge.svg?branch=main)](https://github.com/uw-it-aca/aws-message-client/actions)
+[![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/aws-message-client/badge.svg?branch=main)](https://coveralls.io/github/uw-it-aca/aws-message-client?branch=main)
+[![PyPi Version](https://img.shields.io/pypi/v/aws-message-client.svg)](https://pypi.python.org/pypi/aws-message-client)
+![Python versions](https://img.shields.io/pypi/pyversions/aws-message-client.svg)
 
 Application on which to build AWS SNS endpoints and SQS gatherers
 
 Installation
 ------------
 
-    $ pip install django-aws-message
+    $ pip install aws-message-client
 
 Project settings.py
 ------------------
