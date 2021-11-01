@@ -3,7 +3,7 @@ from setuptools import setup
 
 README = """
 See the README on `GitHub
-<https://github.com/uw-it-aca/django-aws-message>`_.
+<https://github.com/uw-it-aca/aws-message-client>`_.
 """
 
 version_path = 'aws_message/VERSION'
@@ -14,7 +14,7 @@ VERSION = VERSION.replace("\n", "")
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-aws-message',
+    name='aws-message-client',
     version=VERSION,
     packages=['aws_message'],
     include_package_data=True,
@@ -30,7 +30,7 @@ setup(
     description=('An application on which to build AWS SQS endpoints and '
                  'SQS gatherers'),
     long_description=README,
-    url='https://github.com/uw-it-aca/django-aws-message',
+    url='https://github.com/uw-it-aca/aws-message-client',
     author = "UW-IT AXDD",
     author_email = "aca-it@uw.edu",
     classifiers=[
