@@ -1,4 +1,4 @@
-# Copyright 2021 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -43,7 +43,8 @@ class Gather(object):
 
     def gather_events(self):
         messages = self._queue.get_messages()
-        logger.debug("GATHER: {} messages".format(len(messages)))
+        logger.debug(
+            "GATHER: event contains {} messages".format(len(messages)))
 
         for msg in messages:
             try:
