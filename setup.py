@@ -34,7 +34,7 @@ setup(
                  'SQS gatherers'),
     long_description=README,
     url='https://github.com/uw-it-aca/aws-message-client',
-    author = "UW-IT AXDD",
+    author = "UW-IT T&LS",
     author_email = "aca-it@uw.edu",
     classifiers=[
         'Environment :: Web Environment',
@@ -42,6 +42,5 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
     ],
 )
