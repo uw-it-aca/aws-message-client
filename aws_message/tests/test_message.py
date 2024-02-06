@@ -4,7 +4,7 @@
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from aws_message.message import Message
-from aws_message.crypto import CryptoException
+from aws_message.crypto import CryptoException, aes128cbc
 import os
 
 TEST_MESSAGES = [
@@ -125,3 +125,12 @@ class TestMessageValidate(TestCase):
         self.assertEquals(
             'Cannot get certificate None: No host specified.',
             str(cm.exception))
+
+
+class TestMessageDecrypt(TestCase):
+    def test_encrypt_decrypt_message(self):
+        crypt = aes128cbc('DUMMY_KEY_FOR_TESTING_1234567890',
+                          'DUMMY_IV_TESTING')
+        for msg in TEST_MESSAGES:
+            enc = crypt.encrypt(msg)
+            self.assertEqual(crypt.decrypt(enc), msg)
