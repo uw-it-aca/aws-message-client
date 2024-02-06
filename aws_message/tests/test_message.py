@@ -5,6 +5,7 @@ from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from aws_message.message import Message
 from aws_message.crypto import CryptoException, aes128cbc
+import json
 import os
 
 TEST_MESSAGES = [
@@ -129,8 +130,8 @@ class TestMessageValidate(TestCase):
 
 class TestMessageDecrypt(TestCase):
     def test_encrypt_decrypt_message(self):
-        crypt = aes128cbc('DUMMY_KEY_FOR_TESTING_1234567890',
+        aes = aes128cbc('DUMMY_KEY_FOR_TESTING_1234567890',
                           'DUMMY_IV_TESTING')
         for msg in TEST_MESSAGES:
-            enc = crypt.encrypt(msg)
-            self.assertEqual(crypt.decrypt(enc), msg)
+            enc = aes.encrypt(json.dumps(msg))
+            self.assertEqual(json.loads(aes.decrypt(enc)), msg)
