@@ -131,7 +131,7 @@ class TestMessageValidate(TestCase):
 class TestMessageDecrypt(TestCase):
     def test_encrypt_decrypt_message(self):
         aes = aes128cbc('DUMMY_KEY_FOR_TESTING_1234567890',
-                          'DUMMY_IV_TESTING')
+                        'DUMMY_IV_TESTING')
         for msg in TEST_MESSAGES:
             enc = aes.encrypt(json.dumps(msg))
             self.assertEqual(json.loads(aes.decrypt(enc)), msg)
