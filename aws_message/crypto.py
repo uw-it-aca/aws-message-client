@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from commonconf import settings
-from cryptography.hazmat.primitives.ciphers import Cipher, modes
-from cryptography.hazmat.primitives.ciphers.algorithms import AES
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.ciphers import Cipher, AES, modes
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.exceptions import UnsupportedAlgorithm, InvalidSignature
 from memcached_clients import PymemcacheClient
 from hashlib import sha1
 import urllib3
@@ -25,7 +25,7 @@ class Signature(object):
     SHA1 with RSA message signature object
 
     For reference:
-    https://cryptography.io/en/latest/x509/reference/#cryptography.x509.Certificate.tbs_certificate_bytes
+    https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#verification
     """
 
     _cert = None
@@ -79,15 +79,10 @@ class Signature(object):
             raise CryptoException('Cannot validate: no certificate')
 
         try:
-            issuer_public_key = load_pem_public_key(msg)
-            cert_to_check = x509.load_pem_x509_certificate(self._cert)
-            issuer_public_key.verify(
-                cert_to_check.signature,
-                cert_to_check.tbs_certificate_bytes,
-                padding.PKCS1v15(),
-                cert_to_check.signature_hash_algorithm,
-            )
-        except InvalidSignature as err:
+            public_key = load_pem_public_key(self._cert)
+            public_key.verify(sig, msg, padding.PKCS1v15(), hashes.SHA1())
+
+        except (ValueError, UnsupportedAlgorithm, InvalidSignature) as err:
             raise CryptoException('Cannot validate: {}'.format(err))
 
 
@@ -113,7 +108,7 @@ class aes128cbc(object):
 
     def decrypt(self, msg):
         try:
-            cipher = Cipher(AES(self._key), modes.CBC(self._iv))
+            cipher = Cipher(algorithms.AES(self._key), modes.CBC(self._iv))
             decryptor = cipher.decryptor()
             dct = decryptor.update(msg) + decryptor.finalize()
             return dct
