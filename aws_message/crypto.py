@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from commonconf import settings
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.ciphers import Cipher, AES, modes
+from cryptography.hazmat.primitives.hashes import SHA1
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.exceptions import UnsupportedAlgorithm, InvalidSignature
 from memcached_clients import PymemcacheClient
@@ -80,7 +80,7 @@ class Signature(object):
 
         try:
             public_key = load_pem_public_key(self._cert)
-            public_key.verify(sig, msg, padding.PKCS1v15(), hashes.SHA1())
+            public_key.verify(sig, msg, PKCS1v15(), SHA1())
 
         except (ValueError, UnsupportedAlgorithm, InvalidSignature) as err:
             raise CryptoException('Cannot validate: {}'.format(err))
@@ -107,6 +107,7 @@ class aes128cbc(object):
         self._iv = self.str_to_bytes(iv)
 
     def decrypt(self, msg):
+        msg = self.str_to_bytes(msg)
         try:
             cipher = Cipher(algorithms.AES(self._key), modes.CBC(self._iv))
             decryptor = cipher.decryptor()

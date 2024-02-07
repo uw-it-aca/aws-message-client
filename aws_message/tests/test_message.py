@@ -1,10 +1,10 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from aws_message.message import Message
-from aws_message.crypto import CryptoException
+from aws_message.crypto import Signature, aes128cbc, CryptoException
 import os
 
 TEST_MESSAGES = [
@@ -125,3 +125,13 @@ class TestMessageValidate(TestCase):
         self.assertEquals(
             'Cannot get certificate None: No host specified.',
             str(cm.exception))
+
+
+class TestMessageDecrypt(TestCase):
+    def test_decrypt_message(self):
+        AES_KEY = 'DUMMY_KEY_FOR_TESTING_1234567890'
+        AES_IV = 'DUMMY_IV_TESTING'
+
+        aes = aes128cbc(AES_KEY, AES_IV)
+        msg = aes.decrypt(b'1234567812345678')
+        self.assertIsNotNone(msg)
