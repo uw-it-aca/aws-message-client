@@ -1,12 +1,14 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from commonconf import settings
-from Crypto.Cipher import AES
-from hashlib import sha1
-from oscrypto import asymmetric as oscrypto_asymmetric
-from oscrypto import errors as oscrypto_errors
+from cryptography.hazmat.primitives.ciphers import Cipher, modes
+from cryptography.hazmat.primitives.ciphers.algorithms import AES
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.exceptions import InvalidSignature
 from memcached_clients import PymemcacheClient
+from hashlib import sha1
 import urllib3
 import logging
 
@@ -21,6 +23,9 @@ class CryptoException(Exception):
 class Signature(object):
     """
     SHA1 with RSA message signature object
+
+    For reference:
+    https://cryptography.io/en/latest/x509/reference/#cryptography.x509.Certificate.tbs_certificate_bytes
     """
 
     _cert = None
@@ -57,7 +62,7 @@ class Signature(object):
                     r = http.request('GET', cert_ref)
                     if r.status == 200:
                         self._cert = r.data
-                        cache.set(key, self._cert)
+                        cache.set(key, self._cert, expire=60*60*24*7)
                     else:
                         raise CryptoException(
                             'Cannot get certificate {}: status {}'.format(
@@ -74,53 +79,49 @@ class Signature(object):
             raise CryptoException('Cannot validate: no certificate')
 
         try:
-            oscrypto_asymmetric.rsa_pkcs1v15_verify(
-                oscrypto_asymmetric.load_certificate(self._cert),
-                sig, msg, 'sha1')
-        except oscrypto_errors.SignatureError as err:
+            issuer_public_key = load_pem_public_key(msg)
+            cert_to_check = x509.load_pem_x509_certificate(self._cert)
+            issuer_public_key.verify(
+                cert_to_check.signature,
+                cert_to_check.tbs_certificate_bytes,
+                padding.PKCS1v15(),
+                cert_to_check.signature_hash_algorithm,
+            )
+        except InvalidSignature as err:
             raise CryptoException('Cannot validate: {}'.format(err))
 
 
 class aes128cbc(object):
+    """
+    Advanced Encryption Standard object
+
+    For reference:
+    https://cryptography.io/en/latest/hazmat/primitives/symmetric-encryption/
+    """
 
     _key = None
     _iv = None
 
     def __init__(self, key, iv):
-        """
-        Advanced Encryption Standard object
-
-        Raises CryptoException
-        """
-        self._block_size = 16
-
         if key is None:
             raise CryptoException('Missing AES key')
-        else:
-            self._key = key
-
         if iv is None:
             raise CryptoException('Missing AES initialization vector')
-        else:
-            self._iv = iv
 
-    def encrypt(self, msg):
-        try:
-            crypt = AES.new(self._key, AES.MODE_CBC, self._iv)
-            return crypt.encrypt(msg)
-        except Exception as err:
-            raise CryptoException('Cannot decrypt message: {}'.format(err))
+        self._key = self.str_to_bytes(key)
+        self._iv = self.str_to_bytes(iv)
 
     def decrypt(self, msg):
         try:
-            crypt = AES.new(self._key, AES.MODE_CBC, self._iv)
-            return crypt.decrypt(msg)
+            cipher = Cipher(AES(self._key), modes.CBC(self._iv))
+            decryptor = cipher.decryptor()
+            dct = decryptor.update(msg) + decryptor.finalize()
+            return dct
         except Exception as err:
-            raise CryptoException('Cannot decrypt message: {}'.format(err))
+            raise CryptoException(f'Cannot decrypt message: {err}')
 
-    def pad(self, s):
-        return s + (self._block_size - len(s) % self._block_size) * \
-            chr(self._block_size - len(s) % self._block_size)
-
-    def unpad(self, s):
-        return s[0:-ord(s[-1])]
+    def str_to_bytes(self, s):
+        u_type = type(b''.decode('utf8'))
+        if isinstance(s, u_type):
+            return s.encode('utf8')
+        return s
