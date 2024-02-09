@@ -75,7 +75,7 @@ jobs:
           CACHE_TESTS: 1
         run: |
           python -m compileall ${APP_NAME}/
-          coverage run ${APP_NAME}/test.py -v
+          python -Wd -m coverage run ${APP_NAME}/test.py -v
 
       - name: Report Test Coverage
         if: matrix.python-version == env.COVERAGE_PYTHON_VERSION

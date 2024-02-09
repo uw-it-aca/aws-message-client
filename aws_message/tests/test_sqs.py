@@ -31,33 +31,33 @@ class TestSQSQueue(TestCase):
         self.sqs._queue = MockQueue()
 
     def test_queue(self):
-        self.assertEquals(
+        self.assertEqual(
             self.sqs.arn, 'arn:aws:sqs:xx-mock-999:000000000000:ww-wwww-1')
-        self.assertEquals(self.sqs.key_id, 'XXXXXXXXXXXXXXXX')
-        self.assertEquals(self.sqs.key, 'YYYYYYYYYYYYYYYYYYYYYYYY')
-        self.assertEquals(self.sqs.region, 'xx-mock-999')
-        self.assertEquals(self.sqs.account_id, '000000000000')
-        self.assertEquals(self.sqs.queue_name, 'ww-wwww-1')
+        self.assertEqual(self.sqs.key_id, 'XXXXXXXXXXXXXXXX')
+        self.assertEqual(self.sqs.key, 'YYYYYYYYYYYYYYYYYYYYYYYY')
+        self.assertEqual(self.sqs.region, 'xx-mock-999')
+        self.assertEqual(self.sqs.account_id, '000000000000')
+        self.assertEqual(self.sqs.queue_name, 'ww-wwww-1')
 
         #  Overridden __getattr__ should still raise an AttributeError
         self.assertRaises(AttributeError, lambda: self.sqs._does_not_exist)
 
     def test_get_messages(self):
         messages = self.sqs.get_messages()
-        self.assertEquals(len(messages), 100)
+        self.assertEqual(len(messages), 100)
 
         self.sqs._settings['MESSAGE_GATHER_SIZE'] = 9
         messages = self.sqs.get_messages()
-        self.assertEquals(len(messages), 90)
+        self.assertEqual(len(messages), 90)
 
         self.sqs._settings['POLL_COUNT'] = 1
         messages = self.sqs.get_messages()
-        self.assertEquals(len(messages), 9)
+        self.assertEqual(len(messages), 9)
 
     def test_empty_queue(self):
         self.sqs._queue = MockEmptyQueue()
         messages = self.sqs.get_messages()
-        self.assertEquals(len(messages), 0)
+        self.assertEqual(len(messages), 0)
 
 
 class TestSQSQueueErrors(TestCase):
