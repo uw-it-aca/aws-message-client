@@ -20,6 +20,8 @@ setup(
     name='aws-message-client',
     version=VERSION,
     packages=['aws_message'],
+    author="UW-IT T&LS",
+    author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires = [
         'boto3',
@@ -42,6 +44,5 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
     ],
 )
