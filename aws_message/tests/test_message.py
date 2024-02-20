@@ -4,7 +4,7 @@
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from aws_message.message import Message
-from aws_message.crypto import CryptoException
+from aws_message.crypto import Signature, aes128cbc, CryptoException
 import os
 
 TEST_MESSAGES = [
@@ -57,17 +57,17 @@ class TestMessageExtract(TestCase):
         for msg in TEST_MESSAGES:
             message = Message(msg, settings.AWS_SQS['TEST'])
             body = message.extract()
-            self.assertEquals(body, msg)
+            self.assertEqual(body, msg)
 
     @override_settings(AWS_SQS={'TEST': {}})
     def test_extract_inner_message_sns_base64(self):
         message = Message(TEST_MSG_SNS_B64, settings.AWS_SQS['TEST'])
         body = message.extract()
 
-        self.assertEquals(
+        self.assertEqual(
             body["EventID"], '00000000-1111-2222-3333-444444444444')
-        self.assertEquals(body["Href"], '...')
-        self.assertEquals(
+        self.assertEqual(body["Href"], '...')
+        self.assertEqual(
             body["EventDate"], '2018-08-21T21:00:56.832068-07:00')
 
     @override_settings(AWS_SQS={'TEST': {}})
@@ -75,10 +75,10 @@ class TestMessageExtract(TestCase):
         message = Message(TEST_MSG_SNS, settings.AWS_SQS['TEST'])
         body = message.extract()
 
-        self.assertEquals(
+        self.assertEqual(
             body["EventID"], '00000000-1111-2222-3333-444444444444')
-        self.assertEquals(body["Href"], '...')
-        self.assertEquals(
+        self.assertEqual(body["Href"], '...')
+        self.assertEqual(
             body["EventDate"], '2018-08-21T21:00:56.832068-07:00')
 
 
@@ -87,21 +87,21 @@ class TestMessageValidate(TestCase):
     def test_validate(self):
         for msg in TEST_MESSAGES:
             message = Message(msg, settings.AWS_SQS['TEST'])
-            self.assertEquals(message.validate(), True)
+            self.assertEqual(message.validate(), True)
 
     @override_settings(AWS_SQS={'TEST': {
             'VALIDATE_SNS_SIGNATURE': False,
             'TOPIC_ARN': 'arn:aws:sns:us-east-1:111111111111:test-topic'}},)
     def test_validate_topic_arn(self):
         message = Message(TEST_MSG_SNS, settings.AWS_SQS['TEST'])
-        self.assertEquals(message.validate(), True)
+        self.assertEqual(message.validate(), True)
 
     @override_settings(AWS_SQS={'TEST': {
             'VALIDATE_SNS_SIGNATURE': False,
             'TOPIC_ARN': 'arn:aws:sns:us-east-1:111111111111:wrong-topic'}},)
     def test_validate_topic_arn_diff(self):
         message = Message(TEST_MSG_SNS, settings.AWS_SQS['TEST'])
-        self.assertEquals(message.validate(), False)
+        self.assertEqual(message.validate(), False)
 
     @override_settings(AWS_SQS={'TEST': {'VALIDATE_SNS_SIGNATURE': True}},
                        AWS_CA_BUNDLE='ca_certs.txt',
@@ -111,7 +111,7 @@ class TestMessageValidate(TestCase):
         message = Message(TEST_MSG_SNS, settings.AWS_SQS['TEST'])
         with self.assertRaises(CryptoException) as cm:
             message.validate()
-        self.assertEquals(
+        self.assertEqual(
             'Unknown SNS Signature Version: 2', str(cm.exception))
 
     @override_settings(AWS_SQS={'TEST': {'VALIDATE_SNS_SIGNATURE': True}},
@@ -122,6 +122,16 @@ class TestMessageValidate(TestCase):
         message = Message(TEST_MSG_SNS_B64, settings.AWS_SQS['TEST'])
         with self.assertRaises(CryptoException) as cm:
             message.validate()
-        self.assertEquals(
+        self.assertEqual(
             'Cannot get certificate None: No host specified.',
             str(cm.exception))
+
+
+class TestMessageDecrypt(TestCase):
+    def test_decrypt_message(self):
+        AES_KEY = 'DUMMY_KEY_FOR_TESTING_1234567890'
+        AES_IV = 'DUMMY_IV_TESTING'
+
+        aes = aes128cbc(AES_KEY, AES_IV)
+        msg = aes.decrypt(b'1234567812345678')
+        self.assertIsNotNone(msg)
