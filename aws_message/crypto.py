@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from commonconf import settings
+from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.exceptions import UnsupportedAlgorithm, InvalidSignature
 from memcached_clients import PymemcacheClient
 from hashlib import sha1
@@ -79,7 +79,8 @@ class Signature(object):
             raise CryptoException('Cannot validate: no certificate')
 
         try:
-            public_key = load_pem_public_key(self._cert)
+            cert = load_pem_x509_certificate(self._cert)
+            public_key = cert.public_key()
             public_key.verify(sig, msg, PKCS1v15(), SHA1())
 
         except (ValueError, UnsupportedAlgorithm, InvalidSignature) as err:
