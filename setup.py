@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -23,8 +23,7 @@ setup(
     include_package_data=True,
     install_requires = [
         'boto3',
-        'pycrypto',
-        'oscrypto',
+        'cryptography',
         'urllib3',
         'commonconf',
         'uw-memcached-clients~=1.0',
@@ -34,7 +33,7 @@ setup(
                  'SQS gatherers'),
     long_description=README,
     url='https://github.com/uw-it-aca/aws-message-client',
-    author = "UW-IT AXDD",
+    author = "UW-IT T&LS",
     author_email = "aca-it@uw.edu",
     classifiers=[
         'Environment :: Web Environment',
@@ -42,6 +41,5 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
     ],
 )
