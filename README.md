@@ -1,9 +1,9 @@
 # AWS SNS/SQS Message App
 
-[![Build Status](https://github.com/uw-it-aca/aws-message-client/workflows/tests/badge.svg?branch=main)](https://github.com/uw-it-aca/aws-message-client/actions)
+[![Build Status](https://github.com/uw-it-aca/aws-message-client/workflows/tests/badge.svg)](https://github.com/uw-it-aca/aws-message-client/actions)
 [![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/aws-message-client/badge.svg?branch=main)](https://coveralls.io/github/uw-it-aca/aws-message-client?branch=main)
 [![PyPi Version](https://img.shields.io/pypi/v/aws-message-client.svg)](https://pypi.python.org/pypi/aws-message-client)
-![Python versions](https://img.shields.io/badge/python-3.10-blue.svg)
+![Python versions](https://img.shields.io/badge/python-3.12-blue.svg)
 
 Application on which to build AWS SNS endpoints and SQS gatherers
 
